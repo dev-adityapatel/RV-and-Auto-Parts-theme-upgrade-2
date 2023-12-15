@@ -1,3 +1,5 @@
+{{ 'text-overlay.css' | asset_url | stylesheet_tag }}
+
 {%- liquid
   assign color_scheme = section.settings.color_scheme
   assign bg_color = false
@@ -19,48 +21,50 @@
   <div class="container">
 {%- endunless -%}
 
-<div class="section{% unless bg_color == false %} section--padded{% if section.settings.full_width %} section--full-width{% endif %}{% endunless %}{% unless color_scheme == 'none' %} color-scheme color-scheme--{{ color_scheme }}{% endunless %}{% if bg_color == false %} color-scheme--transparent{% endif %}" id="{{ section.id }}"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
-  <div class="container {{ section.settings.text_align }}{% if section.settings.mob_center_text %} md-down:text-center{% endif %}">
-    {%- for block in section.blocks -%}
-      {%- case block.type -%}
-        {%- when 'heading' -%}
-          {%- if block.settings.heading != blank -%}
-            <{% if block.settings.heading_h1 %}h1{% else %}h2{% endif %} class="section__block section__block--heading md-down:px-gutter {{ block.settings.heading_size }}" {{ block.shopify_attributes }}>
-              <span class="contained-heading inline-block">{{- block.settings.heading | escape -}}</span>
-            </{% if block.settings.heading_h1 %}h1{% else %}h2{% endif %}>
-          {%- endif -%}
+<div class="section{% unless bg_color == false %} section--padded{% if section.settings.full_width %} section--full-width{% endif %}{% endunless %}{% unless color_scheme == 'none' %} color-scheme color-scheme--{{ color_scheme }}{% endunless %}{% if bg_color == false %} color-scheme--transparent{% endif %}" id="{{ section.id }}"{% if settings.animations_enabled != "disabled" and section.settings.prevent_animation == false %} data-cc-animate{% endif %}>
+  <div class="container flex {{ section.settings.text_position }} {{ section.settings.text_align }}{% if section.settings.mob_center_text %} md-down:text-center{% endif %}">
+    <div class="max-w-text-overlay">
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+          {%- when 'heading' -%}
+            {%- if block.settings.heading != blank -%}
+              <{% if block.settings.heading_h1 %}h1{% else %}h2{% endif %} class="section__block section__block--heading md-down:px-gutter {{ block.settings.heading_size }}" {{ block.shopify_attributes }}>
+                <span class="contained-heading inline-block">{{- block.settings.heading | escape -}}</span>
+              </{% if block.settings.heading_h1 %}h1{% else %}h2{% endif %}>
+            {%- endif -%}
 
-        {%- when 'subheading' -%}
-          {%- if block.settings.text != blank -%}
-            <p class="section__block section__block--subheading subheading md-down:px-gutter" {{ block.shopify_attributes }}>
-              <span class="contained-heading inline-block">{{- block.settings.text | escape -}}</span>
-            </p>
-          {%- endif -%}
+          {%- when 'subheading' -%}
+            {%- if block.settings.text != blank -%}
+              <p class="section__block section__block--subheading subheading md-down:px-gutter" {{ block.shopify_attributes }}>
+                <span class="contained-heading inline-block">{{- block.settings.text | escape -}}</span>
+              </p>
+            {%- endif -%}
 
-        {%- when 'text' -%}
-          {%- if block.settings.text != blank -%}
-            <div class="section__block reading-width--inline md-down:px-gutter rte{% if section.settings.text_align == 'text-start' %} mr-auto{% elsif section.settings.text_align == 'text-end' %} ml-auto{% else %} mx-auto{% endif %}{% if block.settings.enlarge_text %} enlarge-text{% endif %}" {{ block.shopify_attributes }}>
-              {{ block.settings.text }}
-            </div>
-          {%- endif -%}
+          {%- when 'text' -%}
+            {%- if block.settings.text != blank -%}
+              <div class="section__block reading-width--inline md-down:px-gutter rte{% if section.settings.text_align == 'text-start' %} mr-auto{% elsif section.settings.text_align == 'text-end' %} ml-auto{% else %} mx-auto{% endif %}{% if block.settings.enlarge_text %} enlarge-text{% endif %}" {{ block.shopify_attributes }}>
+                {{ block.settings.text }}
+              </div>
+            {%- endif -%}
 
-        {%- when 'button' -%}
-          {%- if block.settings.button_1_label != blank or block.settings.button_2_label != blank -%}
-            <div class="section__block section__block--buttons md-down:px-gutter inline-flex flex-wrap {% if section.settings.text_align == 'text-start' %} justify-start{% elsif section.settings.text_align == 'text-end' %} justify-end{% else %} justify-center{% endif %}{% if section.settings.mobile_centered %} md-down:center{% endif %}" {{ block.shopify_attributes }}>
-              {%- if block.settings.button_1_label != blank %}
-                <a class="btn {{ block.settings.button_1_style }}" {% if block.settings.button_1_link == blank %}role="link" aria-disabled="true"{% else %}href="{{ block.settings.button_1_link }}"{% endif %}>
-                  {{- block.settings.button_1_label | escape -}}
-                </a>
-              {%- endif -%}
-              {%- if block.settings.button_2_label != blank %}
-                <a class="btn {{ block.settings.button_2_style }}" {% if block.settings.button_2_link == blank %}role="link" aria-disabled="true"{% else %}href="{{ block.settings.button_2_link }}"{% endif %}>
-                  {{- block.settings.button_2_label | escape -}}
-                </a>
-              {%- endif -%}
-            </div>
-          {%- endif -%}
-      {%- endcase -%}
-    {%- endfor -%}
+          {%- when 'button' -%}
+            {%- if block.settings.button_1_label != blank or block.settings.button_2_label != blank -%}
+              <div class="section__block section__block--buttons md-down:px-gutter inline-flex flex-wrap {% if section.settings.text_align == 'text-start' %} justify-start{% elsif section.settings.text_align == 'text-end' %} justify-end{% else %} justify-center{% endif %}{% if section.settings.mob_center_text %} md-down:center{% endif %}" {{ block.shopify_attributes }}>
+                {%- if block.settings.button_1_label != blank %}
+                  <a class="btn {{ block.settings.button_1_style }}" {% if block.settings.button_1_link == blank %}role="link" aria-disabled="true"{% else %}href="{{ block.settings.button_1_link }}"{% endif %}>
+                    {{- block.settings.button_1_label | escape -}}
+                  </a>
+                {%- endif -%}
+                {%- if block.settings.button_2_label != blank %}
+                  <a class="btn {{ block.settings.button_2_style }}" {% if block.settings.button_2_link == blank %}role="link" aria-disabled="true"{% else %}href="{{ block.settings.button_2_link }}"{% endif %}>
+                    {{- block.settings.button_2_label | escape -}}
+                  </a>
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+        {%- endcase -%}
+      {%- endfor -%}
+    </div>
   </div>
 </div>
 
@@ -76,6 +80,26 @@
     {
       "type": "header",
       "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "text_position",
+      "label": "Text position",
+      "options": [
+        {
+          "value": "justify-start",
+          "label": "Left"
+        },
+        {
+          "value": "justify-center",
+          "label": "Center"
+        },
+        {
+          "value": "justify-end",
+          "label": "Right"
+        }
+      ],
+      "default": "justify-center"
     },
     {
       "type": "select",
@@ -136,6 +160,17 @@
       "id": "full_width",
       "label": "Make section background full width",
       "default": true
+    },
+    {
+      "type": "header",
+      "content": "SEO"
+    },
+    {
+      "type": "checkbox",
+      "id": "prevent_animation",
+      "label": "Load the section without animation",
+      "info": "If this section is visible when the page loads, enabling this setting can reduce CLS and may improve site speed scores. [Read more](https://cleancanvas.co.uk/support/enterprise/performance-guide)",
+      "default": false
     }
   ],
   "blocks": [

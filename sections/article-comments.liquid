@@ -1,11 +1,12 @@
 <div class="container">
   {%- if blog.comments_enabled? -%}
+    <div id="comments" class="relative top-header-offset"></div>
     <div class="reading-width article-width mt-12">
       {%- if article.comments_count > 0 -%}
         <h2 class="h6 mb-8" id="comments-{{ article.id }}">
           {{- 'blogs.article.comments' | t: count: article.comments_count -}}
         </h2>
-        {%- paginate article.comments by 5 -%}
+        {%- paginate article.comments by section.settings.comments_per_page -%}
           <div class="article__comments mb-16">
             {%- if comment.status == 'pending' and comment.content -%}
               <article class="comment" id="{{ comment.id }}">
@@ -26,11 +27,11 @@
               </article>
 
               {%- unless forloop.last -%}
-                <hr>
+                <hr class="mb-8">
               {%- endunless -%}
             {%- endfor -%}
 
-            {% render 'pagination', paginate: paginate %}
+            {%- render 'pagination', paginate: paginate, class: 'mt-10', pagination_suffix: '#comments' -%}
           </div>
         {%- endpaginate -%}
       {%- endif -%}
@@ -143,6 +144,17 @@
 {% schema %}
 {
   "name": "Article comments",
-  "class": "cc-article-comments section"
+  "class": "cc-article-comments section",
+  "settings": [
+    {
+      "type": "range",
+      "id": "comments_per_page",
+      "label": "Comments per page",
+      "min": 5,
+      "max": 50,
+      "step": 1,
+      "default": 16
+    }
+  ]
 }
 {% endschema %}

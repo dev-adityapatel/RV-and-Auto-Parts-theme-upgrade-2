@@ -65,8 +65,9 @@ if (!customElements.get('product-form')) {
 
         const response = await fetch(theme.routes.cartAdd, fetchRequestOpts);
         const data = await response.json();
+        const error = typeof data.description === 'string' ? data.description : data.message;
 
-        if (data.status) this.setErrorMsgState(data.description);
+        if (data.status) this.setErrorMsgState(error);
 
         if (!response.ok) throw new Error(response.status);
 
@@ -92,7 +93,13 @@ if (!customElements.get('product-form')) {
               );
             } else if (window.location.pathname === theme.routes.cart) {
               const cartItems = document.querySelector('cart-items');
-              if (cartItems) cartItems.refreshCart();
+              if (cartItems) {
+                if (cartItems.dataset.empty === 'true') {
+                  window.location.reload();
+                } else {
+                  cartItems.refresh();
+                }
+              }
             }
           }, 700);
         }

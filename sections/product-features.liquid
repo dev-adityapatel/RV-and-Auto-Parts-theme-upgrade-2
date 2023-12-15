@@ -1,4 +1,9 @@
-<link rel="stylesheet" href="{{ 'hotspots-image.css' | asset_url }}">
+{%- if section.index > 2 -%}
+  <link rel="stylesheet" href="{{ 'hotspots-image.css' | asset_url }}" media="print" onload="this.media='all'">
+{%- else -%}
+  {{ 'hotspots-image.css' | asset_url | stylesheet_tag }}
+{%- endif -%}
+
 <script src="{{ 'hotspots-image.js' | asset_url }}" defer="defer"></script>
 
 {%- liquid
@@ -63,10 +68,11 @@
           {%- endcapture -%}
           {% render 'image',
             image: image,
-            widths: '1200, 1400, 1600, 1920, 2560, 3200',
+            widths: '480, 980, 1200, 1400, 1600, 1920, 2560, 3200',
             src_width: 1200,
             sizes: sizes,
             quality: 1,
+            section_index: section.index,
             class: 'block mx-auto w-full'
           %}
         {%- else -%}

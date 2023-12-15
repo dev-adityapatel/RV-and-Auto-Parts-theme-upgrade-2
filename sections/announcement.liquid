@@ -4,14 +4,6 @@
   if section.settings.enable_country_selector or section.settings.enable_language_selector
     assign show_localization = true
   endif
-
-  if section.settings.text_type_scale == "small"
-    assign text_type_scale = "0.9em"
-  elsif section.settings.text_type_scale == "medium"
-    assign text_type_scale = "1em"
-  elsif section.settings.text_type_scale == "large"
-    assign text_type_scale = "1.1em"
-  endif
 -%}
 
 {%- if section.settings.link1 or section.settings.link2 or show_localization or section.blocks.size > 0 -%}
@@ -20,7 +12,6 @@
 
   {%- style -%}
     .announcement {
-      --font-size: {{ text_type_scale }};
       --announcement-text-color: {{ section.settings.text_color.rgb }};
       background-color: {{ section.settings.bg_color }};
     }
@@ -30,10 +21,10 @@
     <script src="{{ 'custom-select.js' | asset_url }}" defer="defer"></script>
   {%- endif -%}
 
-  <announcement-bar class="announcement block" data-slide-delay="{{- section.settings.read_time | times: 1000 -}}">
+  <announcement-bar class="announcement block text-body-{{ section.settings.text_type_scale }}" data-slide-delay="{{- section.settings.read_time | times: 1000 -}}">
     <div class="container">
       <div class="flex">
-        <div class="announcement__col--left{% if section.blocks.size > 1 %} announcement__slider{% endif %}"{% if section.blocks.size > 1 %} aria-roledescription="carousel" aria-live="off"{% endif %}>
+        <div class="announcement__col--left {% if section.settings.link1 or section.settings.link2 or show_localization %}announcement__col--align-left{% else %}announcement__col--align-center{% endif %}{% if section.blocks.size > 1 %} announcement__slider{% endif %}"{% if section.blocks.size > 1 %} aria-roledescription="carousel" aria-live="off"{% endif %}>
           {%- for block in section.blocks -%}
             <div class="announcement__text flex items-center m-0" {{ block.shopify_attributes }}{% if section.blocks.size > 1 %} aria-roledescription="slide"{% endif %}>
               <div class="rte">{{- block.settings.text -}}</div>

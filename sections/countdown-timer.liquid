@@ -1,5 +1,9 @@
 {%- if section.blocks.size > 0 -%}
-  {{ 'text-overlay.css' | asset_url | stylesheet_tag }}
+  {%- if section.index > 2 -%}
+    <link rel="stylesheet" href="{{ 'text-overlay.css' | asset_url }}" media="print" onload="this.media='all'">
+  {%- else -%}
+    {{ 'text-overlay.css' | asset_url | stylesheet_tag }}
+  {%- endif -%}
 {%- endif -%}
 
 {%- liquid
@@ -155,7 +159,7 @@
 
             {%- when 'button' -%}
               {%- if block.settings.button_1_label != blank or block.settings.button_2_label != blank -%}
-                <div class="text-overlay__block text-overlay__buttons inline-flex flex-wrap mt-4{% if section.settings.overlay_text_align == 'text-start' %} justify-start{% elsif section.settings.overlay_text_align == 'text-end' %} justify-end{% else %} justify-center{% endif %}{% if section.settings.mobile_centered %} md-down:center{% endif %}" {{ block.shopify_attributes }}>
+                <div class="text-overlay__block text-overlay__buttons inline-flex flex-wrap mt-4{% if section.settings.overlay_text_align == 'text-start' %} justify-start{% elsif section.settings.overlay_text_align == 'text-end' %} justify-end{% else %} justify-center{% endif %}" {{ block.shopify_attributes }}>
                   {%- if block.settings.button_1_label != blank %}
                     <a class="{{ block.settings.button_1_style }}" {% if block.settings.button_1_link == blank %}role="link" aria-disabled="true"{% else %}href="{{ block.settings.button_1_link }}"{% endif %}>
                       {{- block.settings.button_1_label | escape -}}
@@ -223,7 +227,7 @@
       "type": "range",
       "id": "fixed_height_desktop",
       "min": 400,
-      "max": 750,
+      "max": 1000,
       "step": 10,
       "unit": "px",
       "label": "Minimum fixed height on large screens",
@@ -246,7 +250,7 @@
     {
       "type": "select",
       "id": "overlay_position",
-      "label": "Overlay position",
+      "label": "Text position",
       "options": [
         {
           "value": "justify-start",

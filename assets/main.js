@@ -1,5 +1,5 @@
 /**
- * Polyfills :focus-visible for non supporting broswers (Safari < 15.4).
+ * Polyfills :focus-visible for non supporting browsers (Safari < 15.4).
  */
 function focusVisiblePolyfill() {
   const navKeys = ['Tab', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', 'Space', 'Escape', 'Home', 'End', 'PageUp', 'PageDown'];
@@ -243,17 +243,42 @@ class DeferredMedia extends HTMLElement {
     super();
 
     const loadBtn = this.querySelector('.js-load-media');
-    if (loadBtn) loadBtn.addEventListener('click', this.loadContent.bind(this));
+    if (loadBtn) {
+      loadBtn.addEventListener('click', this.loadContent.bind(this));
+    } else {
+      this.addObserver();
+    }
+  }
+
+  /**
+   * Adds an Intersection Observer to load the content when viewport scroll is near
+   */
+  addObserver() {
+    if ('IntersectionObserver' in window === false) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          this.loadContent(false, false, 'observer');
+          observer.unobserve(this);
+        }
+      });
+    }, { rootMargin: '0px 0px 1000px 0px' });
+
+    observer.observe(this);
   }
 
   /**
    * Loads the deferred media.
    * @param {boolean} [focus=true] - Focus the deferred media element after loading.
+   * @param {boolean} [pause=true] - Whether to pause all media after loading.
+   * @param {string} [loadTrigger='click'] - The action that caused the deferred content to load.
    */
-  loadContent(focus = true) {
-    pauseAllMedia();
+  loadContent(focus = true, pause = true, loadTrigger = 'click') {
+    if (pause) pauseAllMedia();
     if (this.getAttribute('loaded') !== null) return;
 
+    this.loadTrigger = loadTrigger;
     const content = this.querySelector('template').content.firstElementChild.cloneNode(true);
     this.appendChild(content);
     this.setAttribute('loaded', '');
@@ -276,10 +301,7 @@ class DetailsDisclosure extends HTMLElement {
 
   init() {
     // Check if the content element has a CSS transition.
-    const styles = window.getComputedStyle(this.panel);
-    this.hasTransition = styles.transition !== 'all 0s ease 0s';
-
-    if (this.hasTransition) {
+    if (window.getComputedStyle(this.panel).transitionDuration !== '0s') {
       this.toggle.addEventListener('click', this.handleToggle.bind(this));
       this.disclosure.addEventListener('transitionend', this.handleTransitionEnd.bind(this));
     }
@@ -702,23 +724,34 @@ window.addEventListener(
 );
 
 /**
- * Keeps a record of the height of the given child element and stores it in a css variable called
- * `--element-height`. This height is kept up to date when the browser changes size or the child
- * element mutates.
+ * Keeps a record of the height of the first occurrence of the given child element and stores it in
+ * a css variable called `--[selector without the . or #]-height`. This height is kept up to date
+ * when the browser changes size or the child element mutates.
  *
  * The selector must only match one element, and don't nest watched elements.
  *
  * Example usage:
  * <slide-show data-css-var-height=".quick-nav">
  * ... will result in:
- * <slide-show data-css-var-height=".quick-nav" style="--element-height: 483px;">
+ * <slide-show data-css-var-height=".quick-nav" style="--quick-nav-height: 483px;">
  */
-document.addEventListener('DOMContentLoaded', () => {
+function initCssVarHeightWatch() {
   const parentElems = document.querySelectorAll('[data-css-var-height]');
   if (parentElems) {
     const updateHeight = (elem) => {
       const parentElem = elem.closest('[data-css-var-height]');
-      parentElem.style.setProperty('--element-height', `${elem.clientHeight}px`);
+      if (parentElem) {
+        const selectors = parentElem.dataset.cssVarHeight.split(',');
+        let matchedSelector = null;
+        selectors.forEach((selector) => {
+          if (elem.matches(selector.trim())) {
+            matchedSelector = selector.trim();
+          }
+        });
+
+        const variableName = `--${matchedSelector.replace(/^([#.])/, '')}-height`;
+        parentElem.style.setProperty(variableName, `${elem.getBoundingClientRect().height.toFixed(2)}px`);
+      }
     };
 
     let mutationObserver = null;
@@ -726,36 +759,44 @@ document.addEventListener('DOMContentLoaded', () => {
       mutationObserver = new MutationObserver(
         debounce((mutationList) => {
           const elemToWatch = mutationList[0].target.closest('[data-css-var-height]');
-          updateHeight(elemToWatch.querySelector(elemToWatch.dataset.cssVarHeight));
+          if (elemToWatch) {
+            updateHeight(elemToWatch.querySelector(elemToWatch.dataset.cssVarHeight));
+          }
         })
       );
     }
 
     parentElems.forEach((parentElem) => {
-      const elemToWatch = parentElem.querySelector(parentElem.dataset.cssVarHeight);
-      if (elemToWatch) {
-        if (mutationObserver) {
-          mutationObserver.observe(elemToWatch, {
-            childList: true,
-            attributes: true,
-            subtree: true
+      parentElem.dataset.cssVarHeight.split(',').forEach((selector) => {
+        const elemToWatch = parentElem.querySelector(selector);
+        if (elemToWatch) {
+          if (mutationObserver) {
+            mutationObserver.observe(elemToWatch, {
+              childList: true,
+              attributes: true,
+              subtree: true
+            });
+          }
+
+          window.addEventListener('on:debounced-resize', () => {
+            const elem = parentElem.querySelector(selector);
+            if (elem) updateHeight(elem);
           });
-        }
 
-        window.addEventListener('on:debounced-resize', () => {
+          document.addEventListener('on:css-var-height:update', () => {
+            const elem = parentElem.querySelector(selector);
+            if (elem) updateHeight(elem);
+          });
+
           updateHeight(elemToWatch);
-        });
-
-        updateHeight(elemToWatch);
-      } else {
-        // eslint-disable-next-line
-        console.warn(
-          `No child elements matching ${parentElem.dataset.cssVarHeight} could be found.`
-        );
-      }
+        }
+      });
     });
   }
-});
+}
+
+document.addEventListener('DOMContentLoaded', initCssVarHeightWatch);
+document.addEventListener('shopify:section:load', initCssVarHeightWatch);
 
 /**
  * Provides convenient utility functions for interacting with elements
@@ -822,9 +863,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   theme.storageUtil.remove = (key, isSession) => {
     if (isSession) {
-      sessionStorage.removeItem(key);
+      sessionStorage.removeItem(`cc-${key}`);
     } else {
-      localStorage.removeItem(key);
+      localStorage.removeItem(`cc-${key}`);
     }
   };
 })();
@@ -834,6 +875,7 @@ class StoreHeader extends HTMLElement {
     super();
     this.menu = this.querySelector('.main-menu__content');
     this.searchToggle = this.querySelector('.js-show-search');
+    this.searchToggleLeft = this.querySelector('.js-show-search-left');
     this.mobNavToggle = this.querySelector('.main-menu__toggle');
     this.shakeyCartIcon = this.querySelector('.header__icon--cart-shake');
     this.headerGroupSections = document.querySelectorAll('.shopify-section-group-header-group');
@@ -871,7 +913,13 @@ class StoreHeader extends HTMLElement {
     }
 
     if (this.dataset.isSearchMinimised) {
-      this.searchToggle.addEventListener('click', this.handleSearchToggleClick.bind(this));
+      if (this.searchToggle) {
+        this.searchToggle.addEventListener('click', this.handleSearchToggleClick.bind(this));
+      }
+
+      if (this.searchToggleLeft) {
+        this.searchToggleLeft.addEventListener('click', this.handleSearchToggleClick.bind(this));
+      }
     }
   }
 
@@ -911,7 +959,7 @@ class StoreHeader extends HTMLElement {
   }
 
   /**
-   * Toggles visibility of the search bar (mobile only)
+   * Toggles visibility of the search bar
    * @param {object} evt - Event object
    */
   handleSearchToggleClick(evt) {
@@ -1291,7 +1339,7 @@ class MainMenu extends HTMLElement {
     let el = evt.target;
 
     // Handle sidebar link clicks
-    if (theme.mediaMatches.md && el.matches('.js-sidebar-hover')) {
+    if (theme.mediaMatches.md && el.matches('.js-sidebar-hover') && el.closest('summary')) {
       evt.preventDefault();
       MainMenu.handleSidenavMenuToggle(evt);
     }
@@ -1561,31 +1609,36 @@ class CarouselSlider extends HTMLElement {
   }
 
   initSlider() {
-    this.gridWidth = this.grid.clientWidth;
+    if (!(this.getAttribute('disable-mobile') && !window.matchMedia(theme.mediaQueries.sm).matches)
+      && !(this.getAttribute('disable-desktop') && window.matchMedia(theme.mediaQueries.sm).matches)) {
+      this.gridWidth = this.grid.clientWidth;
 
-    // Distance between leading edges of adjacent slides (i.e. width of card + gap).
-    this.slideSpan = this.getWindowOffset(this.slides[1]) - this.getWindowOffset(this.slides[0]);
+      // Distance between leading edges of adjacent slides (i.e. width of card + gap).
+      this.slideSpan = this.getWindowOffset(this.slides[1]) - this.getWindowOffset(this.slides[0]);
 
-    // Width of gap between slides.
-    this.slideGap = this.slideSpan - this.slides[0].clientWidth;
+      // Width of gap between slides.
+      this.slideGap = this.slideSpan - this.slides[0].clientWidth;
 
-    this.slidesPerPage = Math.round((this.gridWidth + this.slideGap) / this.slideSpan);
-    this.slidesToScroll = theme.settings.sliderItemsPerNav === 'page' ? this.slidesPerPage : 1;
-    this.totalPages = this.slides.length - this.slidesPerPage + 1;
+      this.slidesPerPage = Math.round((this.gridWidth + this.slideGap) / this.slideSpan);
+      this.slidesToScroll = theme.settings.sliderItemsPerNav === 'page' ? this.slidesPerPage : 1;
+      this.totalPages = this.slides.length - this.slidesPerPage + 1;
 
-    this.setCarouselState(this.totalPages > 1);
-    if (this.totalPages < 2) return;
+      this.setCarouselState(this.totalPages > 1);
+      if (this.totalPages < 2) return;
 
-    this.sliderStart = this.getWindowOffset(this.slider);
-    if (!this.sliderStart) this.sliderStart = (this.slider.clientWidth - this.gridWidth) / 2;
-    this.sliderEnd = this.sliderStart + this.gridWidth;
+      this.sliderStart = this.getWindowOffset(this.slider);
+      if (!this.sliderStart) this.sliderStart = (this.slider.clientWidth - this.gridWidth) / 2;
+      this.sliderEnd = this.sliderStart + this.gridWidth;
 
-    if (window.matchMedia('(pointer: fine)').matches) {
-      this.slider.classList.add('is-grabbable');
+      if (window.matchMedia('(pointer: fine)').matches) {
+        this.slider.classList.add('is-grabbable');
+      }
+
+      this.addListeners();
+      this.setButtonStates();
+    } else {
+      this.setAttribute('inactive', '');
     }
-
-    this.addListeners();
-    this.setButtonStates();
   }
 
   addListeners() {
@@ -1806,4 +1859,13 @@ document.addEventListener('DOMContentLoaded', () => {
       }, 1000);
     }
   });
+});
+
+// Emit an event to indicate the page was restored from bfcache, https://web.dev/articles/bfcache
+window.addEventListener('pageshow', (evt) => {
+  if (evt.persisted) {
+    document.dispatchEvent(new CustomEvent('on:bfcache:load-restore'));
+  } else {
+    document.dispatchEvent(new CustomEvent('on:bfcache:load-normal'));
+  }
 });

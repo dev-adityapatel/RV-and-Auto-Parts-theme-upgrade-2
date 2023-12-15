@@ -15,8 +15,7 @@ class DetailsModal extends HTMLElement {
    */
   handleClick(evt) {
     if (this.hasTransition === undefined) {
-      const overlayStyles = window.getComputedStyle(this.modal);
-      this.hasTransition = overlayStyles.transition !== 'all 0s ease 0s';
+      this.hasTransition = window.getComputedStyle(this.modal).transitionDuration !== '0s';
     }
 
     if (!this.detailsEl.open) {

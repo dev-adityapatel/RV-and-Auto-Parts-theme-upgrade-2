@@ -1,7 +1,7 @@
 {% if section.settings.image == blank %}
   <img class="gift-card__image" src="{{ 'gift-card/card.svg' | shopify_asset_url }}" loading="lazy" width="570" height="{{ 570 | divided_by: 1.5 }}" alt="">
 {% else %}
-  <img src="{{ section.settings.image | image_url: width: 400 }}" loading="lazy" width="400" height="{{ 400 | divided_by: section.settings.image.aspect_ratio | ceil }}" alt="">
+  <img src="{{ section.settings.image | image_url: width: 800 }}" loading="lazy" width="400" height="{{ 400 | divided_by: section.settings.image.aspect_ratio | ceil }}" alt="">
 {% endif %}
 
 <div class="gift-card__qr-code" data-identifier="{{ gift_card.qr_identifier }}"></div>

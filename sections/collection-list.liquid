@@ -51,9 +51,28 @@
   else
     assign image_ratio = settings.coll_card_image_ratio
   endif
+
+  assign color_scheme = section.settings.color_scheme
+  assign bg_color = false
+
+  if color_scheme == '1'
+    assign bg_color = settings.color_scheme_1_bg
+  elsif color_scheme == '2'
+    assign bg_color = settings.color_scheme_2_bg
+  elsif color_scheme == '3'
+    assign bg_color = settings.color_scheme_3_bg
+  endif
+
+  if bg_color == settings.bg_color or bg_color == 'rgba(0,0,0,0)'
+    assign bg_color = false
+  endif
 -%}
 
-<div class="section">
+{%- unless section.settings.full_width -%}
+  <div class="container">
+{%- endunless -%}
+
+<div class="section{% unless bg_color == false %} section--padded{% if section.settings.full_width %} section--full-width{% endif %}{% endunless %}{% unless color_scheme == 'none' %} color-scheme color-scheme--{{ color_scheme }}{% endunless %}{% if bg_color == false %} color-scheme--transparent{% endif %}">
   {%- if section.settings.title != blank or section.settings.button_label != blank -%}
     <div class="container">
       <div class="section__header items-center flex{% if section.settings.heading_align == 'text-center' %} flex-col text-center{% elsif section.settings.heading_align == 'text-end' %} flex-row-reverse flex-wrap{% else %} flex-row flex-wrap{% endif %} gap-x-theme"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
@@ -85,7 +104,8 @@
               image: block.settings.image,
               image_ratio: image_ratio,
               circle_image: circle_image,
-              use_product_image: section.settings.use_product_image
+              use_product_image: section.settings.use_product_image,
+              show_border: section.settings.show_border
             %}
           </li>
         {%- else -%}
@@ -116,6 +136,10 @@
     </carousel-slider>
   {%- endif -%}
 </div>
+
+{%- unless section.settings.full_width -%}
+</div>
+{%- endunless -%}
 
 {% schema %}
 {
@@ -169,7 +193,7 @@
       "content": "Layout"
     },
     {
-      "type": "radio",
+      "type": "select",
       "id": "layout",
       "label": "Layout",
       "options": [
@@ -219,6 +243,42 @@
       "id": "circle_image",
       "label": "Crop images as circles",
       "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_border",
+      "label": "Show image border",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "options": [
+        {
+          "value": "none",
+          "label": "Default"
+        },
+        {
+          "value": "1",
+          "label": "Scheme 1"
+        },
+        {
+          "value": "2",
+          "label": "Scheme 2"
+        },
+        {
+          "value": "3",
+          "label": "Scheme 3"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Make section background full width",
+      "default": true
     }
   ],
   "blocks": [
@@ -244,6 +304,12 @@
     {
       "name": "Collection list",
       "blocks": [
+        {
+          "type": "collection"
+        },
+        {
+          "type": "collection"
+        },
         {
           "type": "collection"
         },

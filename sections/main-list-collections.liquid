@@ -70,7 +70,7 @@
       -%}
 
       {%- if show_promo -%}
-        <li class="col-span-full" style="--promo-text-color: {{- block.settings.text_color -}};--promo-min-height: {{- block.settings.min_height -}}px;--promo-overlay-color: rgba({{ block.settings.tint_color.red }}, {{ block.settings.tint_color.green }}, {{ block.settings.tint_color.blue }}, {{ block.settings.tint_opacity | divided_by: 100.0 }});">
+        <li class="col-span-full js-pagination-result" style="--promo-text-color: {{- block.settings.text_color -}};--promo-min-height: {{- block.settings.min_height -}}px;--promo-overlay-color: rgba({{ block.settings.tint_color.red }}, {{ block.settings.tint_color.green }}, {{ block.settings.tint_color.blue }}, {{ block.settings.tint_opacity | divided_by: 100.0 }});">
           {%-
                   render 'promo-image',
                   link_url: block.settings.link_url,
@@ -80,7 +80,9 @@
                   video_shopify: block.settings.video_shopify,
                   text_width: block.settings.text_width,
                   text_type_scale: block.settings.text_type_scale,
-                  size: section.settings.card_size
+                  size: section.settings.card_size,
+                  button_label: block.settings.button_label,
+                  button_style: block.settings.button_style
           -%}
         </li>
       {%- endif -%}
@@ -98,7 +100,7 @@
       -%}
 
       {%- if show_promo -%}
-        <li class="col-span-full" style="--promo-text-color: {{- block.settings.text_color -}};--promo-min-height: {{- block.settings.min_height -}}px;--promo-overlay-color: rgba({{ block.settings.tint_color.red }}, {{ block.settings.tint_color.green }}, {{ block.settings.tint_color.blue }}, {{ block.settings.tint_opacity | divided_by: 100.0 }});">
+        <li class="col-span-full js-pagination-result" style="--promo-text-color: {{- block.settings.text_color -}};--promo-min-height: {{- block.settings.min_height -}}px;--promo-overlay-color: rgba({{ block.settings.tint_color.red }}, {{ block.settings.tint_color.green }}, {{ block.settings.tint_color.blue }}, {{ block.settings.tint_opacity | divided_by: 100.0 }});">
           {%-
                   render 'promo-image',
                   link_url: block.settings.link_url,
@@ -108,7 +110,9 @@
                   video_shopify: block.settings.video_shopify,
                   text_width: block.settings.text_width,
                   text_type_scale: block.settings.text_type_scale,
-                  size: section.settings.card_size
+                  size: section.settings.card_size,
+                  button_label: block.settings.button_label,
+                  button_style: block.settings.button_style
           -%}
         </li>
       {%- endif -%}
@@ -116,80 +120,99 @@
   {%- endcapture -%}
 
   {%- if section.settings.display_type == 'all' -%}
+    {%- if settings.pagination_style == "modern" or settings.pagination_infinite -%}
+      <script src="{{ 'custom-pagination.js' | asset_url }}" defer="defer"></script>
+    {%- endif -%}
+
     {%- paginate collections by section.settings.collections_per_page -%}
-      <ul class="grid {{ grid_classes }} gap-x-theme gap-y-12 md:gap-y-16{% if section.settings.title != blank or section.settings.description != blank %} mt-10 md:mt-16{% endif %}" role="list"
-        {% if section.blocks.size > 0 %}style="--promo-border-color: {{ settings.coll_border_color }}"{% endif %}>
+      <custom-pagination data-infinite-scroll="{{ settings.pagination_infinite }}" data-pause-infinite-scroll="false">
+        <ul class="grid mb-8 md:mb-12 {{ grid_classes }} gap-x-theme gap-y-12 md:gap-y-16{% if section.settings.title != blank or section.settings.description != blank %} mt-10 md:mt-16{% endif %}" role="list"
+          {% if section.blocks.size > 0 %}style="--promo-border-color: {{ settings.coll_border_color }}"{% endif %}>
 
-        {{ top_promo }}
+          {{ top_promo }}
 
-        {%- assign rendered_collection_ids = "" -%}
-        {%- for collection in collections -%}
-          {%- assign collection_index = forloop.index -%}
-          {%- for block in section.blocks -%}
-            {%- liquid
-              assign is_last_position = false
-              if collection_index == paginate.page_size and paginate.current_page == 1 and block.settings.position > collection_index
-                assign is_last_position = true
-              endif
-            -%}
+          {%- assign rendered_collection_ids = "" -%}
+          {%- for collection in collections -%}
+            {%- assign collection_index = forloop.index -%}
+            {%- for block in section.blocks -%}
+              {%- liquid
+                assign is_last_position = false
+                if collection_index == paginate.page_size and paginate.current_page == 1 and block.settings.position > collection_index
+                  assign is_last_position = true
+                endif
+              -%}
 
-            {%- if is_last_position -%}
-              {%- unless rendered_collection_ids contains collection.id -%}
-                {%- assign rendered_collection_ids = rendered_collection_ids | append: collection.id | append: "," -%}
-                <li>{% render 'collection-card', collection: collection, image_ratio: image_ratio, use_product_image: section.settings.use_product_image %}</li>
-              {%- endunless -%}
-            {%- endif -%}
-
-            {%- unless block.settings.position == "top" or block.settings.position == "bottom" -%}
-              {%- if collection_index == block.settings.position or is_last_position -%}
-                <li {% if block.type == "image-promotion" %}style="--promo-text-color: {{- block.settings.text_color -}};--promo-min-height: {{- block.settings.min_height -}}px;--promo-overlay-color: rgba({{ block.settings.tint_color.red }}, {{ block.settings.tint_color.green }}, {{ block.settings.tint_color.blue }}, {{ block.settings.tint_opacity | divided_by: 100.0 }});"{% endif %}>
-                  {% if block.type == "image-promotion" or block.type == "wide-promotion" %}
-                    {%-
-                            render 'promo-image',
-                            link_url: block.settings.link_url,
-                            content: block.settings.content,
-                            text_alignment: block.settings.text_alignment,
-                            image: block.settings.image,
-                            video_shopify: block.settings.video_shopify,
-                            text_width: block.settings.text_width,
-                            text_type_scale: block.settings.text_type_scale,
-                            size: section.settings.card_size
-                    -%}
-                  {%- elsif block.type == "card-promotion" -%}
-                    {%-
-                            render 'promo-card',
-                            link_url: block.settings.link_url,
-                            title: block.settings.title,
-                            content: block.settings.content,
-                            image: block.settings.image,
-                            image_ratio: block.settings.image_ratio,
-                            button_label: block.settings.button_label,
-                            button_style: block.settings.button_style,
-                            color_scheme: block.settings.color_scheme,
-                            button_bottom_align: block.settings.button_bottom_align,
-                            size: section.settings.card_size
-                    -%}
-                  {%- endif -%}
-                </li>
+              {%- if is_last_position -%}
+                {%- unless rendered_collection_ids contains collection.id -%}
+                  {%- assign rendered_collection_ids = rendered_collection_ids | append: collection.id | append: "," -%}
+                  <li class="js-pagination-result">{% render 'collection-card', collection: collection, image_ratio: image_ratio, use_product_image: section.settings.use_product_image %}</li>
+                {%- endunless -%}
               {%- endif -%}
+
+              {%- unless block.settings.position == "top" or block.settings.position == "bottom" -%}
+                {%- if collection_index == block.settings.position or is_last_position -%}
+                  <li class="js-pagination-result" {% if block.type == "image-promotion" %}style="--promo-text-color: {{- block.settings.text_color -}};--promo-min-height: {{- block.settings.min_height -}}px;--promo-overlay-color: rgba({{ block.settings.tint_color.red }}, {{ block.settings.tint_color.green }}, {{ block.settings.tint_color.blue }}, {{ block.settings.tint_opacity | divided_by: 100.0 }});"{% endif %}>
+                    {% if block.type == "image-promotion" or block.type == "wide-promotion" %}
+                      {%-
+                              render 'promo-image',
+                              link_url: block.settings.link_url,
+                              content: block.settings.content,
+                              text_alignment: block.settings.text_alignment,
+                              image: block.settings.image,
+                              video_shopify: block.settings.video_shopify,
+                              text_width: block.settings.text_width,
+                              text_type_scale: block.settings.text_type_scale,
+                              size: section.settings.card_size,
+                              button_label: block.settings.button_label,
+                              button_style: block.settings.button_style
+                      -%}
+                    {%- elsif block.type == "card-promotion" -%}
+                      {%-
+                              render 'promo-card',
+                              link_url: block.settings.link_url,
+                              title: block.settings.title,
+                              content: block.settings.content,
+                              image: block.settings.image,
+                              image_ratio: block.settings.image_ratio,
+                              button_label: block.settings.button_label,
+                              button_style: block.settings.button_style,
+                              color_scheme: block.settings.color_scheme,
+                              button_bottom_align: block.settings.button_bottom_align,
+                              size: section.settings.card_size
+                      -%}
+                    {%- endif -%}
+                  </li>
+                {%- endif -%}
+              {%- endunless -%}
+            {%- endfor -%}
+
+            {%- unless is_last_position and rendered_collection_ids contains collection.id -%}
+              {%- assign rendered_collection_ids = rendered_collection_ids | append: collection.id | append: "," -%}
+              <li class="js-pagination-result">{% render 'collection-card', collection: collection, image_ratio: image_ratio, use_product_image: section.settings.use_product_image %}</li>
             {%- endunless -%}
           {%- endfor -%}
 
-          {%- unless is_last_position and rendered_collection_ids contains collection.id -%}
-            {%- assign rendered_collection_ids = rendered_collection_ids | append: collection.id | append: "," -%}
-            <li>{% render 'collection-card', collection: collection, image_ratio: image_ratio, use_product_image: section.settings.use_product_image %}</li>
-          {%- endunless -%}
-        {%- endfor -%}
+          {%- liquid
+            if paginate.pages == 0 or paginate.current_page == 1
+              echo end_promo
+            endif
+          -%}
+        </ul>
 
-        {{ end_promo }}
-      </ul>
-      {%- render 'pagination', paginate: paginate -%}
+        {%- if paginate.pages > 1 -%}
+          {%- render 'pagination', paginate: paginate, style: settings.pagination_style -%}
+        {%- endif -%}
+      </custom-pagination>
     {%- endpaginate -%}
   {%- else -%}
     <ul class="grid {{ grid_classes }} gap-x-theme gap-y-12 md:gap-y-16{% if section.settings.title != blank or section.settings.description != blank %} mt-10 md:mt-16{% endif %}" role="list"
       {% if section.blocks.size > 0 %}style="--promo-border-color: {{ settings.coll_border_color }}"{% endif %}>
 
-      {{ top_promo }}
+      {%- liquid
+        if paginate.pages == 0 or paginate.current_page == 1
+          echo top_promo
+        endif
+      -%}
 
       {%- assign rendered_collection_ids = "" -%}
       {%- for collection in collections -%}
@@ -205,7 +228,7 @@
           {%- if is_last_position -%}
             {%- unless rendered_collection_ids contains collection.id -%}
               {%- assign rendered_collection_ids = rendered_collection_ids | append: collection.id | append: "," -%}
-              <li>{% render 'collection-card', collection: collection, image_ratio: image_ratio, use_product_image: section.settings.use_product_image %}</li>
+              <li class="js-pagination-result">{% render 'collection-card', collection: collection, image_ratio: image_ratio, use_product_image: section.settings.use_product_image %}</li>
             {%- endunless -%}
           {%- endif -%}
 
@@ -222,7 +245,9 @@
                           video_shopify: block.settings.video_shopify,
                           text_width: block.settings.text_width,
                           text_type_scale: block.settings.text_type_scale,
-                          size: section.settings.card_size
+                          size: section.settings.card_size,
+                          button_label: block.settings.button_label,
+                          button_style: block.settings.button_style
                   -%}
                 {%- elsif block.type == "card-promotion" -%}
                   {%-
@@ -246,7 +271,7 @@
 
         {%- unless is_last_position and rendered_collection_ids contains collection.id -%}
           {%- assign rendered_collection_ids = rendered_collection_ids | append: collection.id | append: "," -%}
-          <li>{% render 'collection-card', collection: collection, image_ratio: image_ratio, use_product_image: section.settings.use_product_image %}</li>
+          <li class="js-pagination-result">{% render 'collection-card', collection: collection, image_ratio: image_ratio, use_product_image: section.settings.use_product_image %}</li>
         {%- endunless -%}
       {%- endfor -%}
 
@@ -300,7 +325,7 @@
       "content": "All of your collections are listed by default. To show a custom list, choose 'Selected' and add collections."
     },
     {
-      "type": "radio",
+      "type": "select",
       "id": "display_type",
       "label": "Collections to show",
       "options": [
@@ -413,15 +438,15 @@
           "info": "Hosted by Shopify. Video will autoplay and be muted. [Read more](https://cleancanvas.co.uk/support/enterprise/using-videos)"
         },
         {
+          "type": "url",
+          "id": "link_url",
+          "label": "Link URL"
+        },
+        {
           "type": "richtext",
           "id": "content",
           "default": "<p>Promotion text</p>",
           "label": "Text"
-        },
-        {
-          "type": "url",
-          "id": "link_url",
-          "label": "Link URL"
         },
         {
           "type": "select",
@@ -429,6 +454,14 @@
           "label": "Text size",
           "info": "This is calculated from the Heading font size.",
           "options": [
+            {
+              "value": "1em",
+              "label": "Body font size"
+            },
+            {
+              "value": "--h6-font-size",
+              "label": "Extra small"
+            },
             {
               "value": "--h5-font-size",
               "label": "Small"
@@ -440,6 +473,10 @@
             {
               "value": "--h3-font-size",
               "label": "Large"
+            },
+            {
+              "value": "--h2-font-size",
+              "label": "Extra large"
             }
           ],
           "default": "--h4-font-size"
@@ -497,6 +534,36 @@
               "label": "Bottom right"
             }
           ]
+        },
+        {
+          "type": "header",
+          "content": "Button"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label",
+          "info": "Links to the URL specified in the \"Link URL\" setting."
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": "Button style",
+          "options": [
+            {
+              "value": "link",
+              "label": "Link"
+            },
+            {
+              "value": "btn btn--primary",
+              "label": "Primary button"
+            },
+            {
+              "value": "btn btn--secondary",
+              "label": "Secondary button"
+            }
+          ],
+          "default": "btn btn--secondary"
         },
         {
           "type": "header",
@@ -538,7 +605,7 @@
           "type": "range",
           "id": "position",
           "label": "Position in results",
-          "info": "Inserts the promotion before the collection card in this position.",
+          "info": "Inserts the promotion before the collection card in this position. Only applies to the first page of results.",
           "min": 1,
           "max": 50,
           "step": 1,
@@ -571,15 +638,15 @@
           "info": "Video will autoplay and be muted. [Read more](https://cleancanvas.co.uk/support/enterprise/using-videos)"
         },
         {
+          "type": "url",
+          "id": "link_url",
+          "label": "Link URL"
+        },
+        {
           "type": "richtext",
           "id": "content",
           "default": "<p>Promotion text</p>",
           "label": "Text"
-        },
-        {
-          "type": "url",
-          "id": "link_url",
-          "label": "Link URL"
         },
         {
           "type": "select",
@@ -587,6 +654,14 @@
           "label": "Text size",
           "info": "This is calculated from the Heading font size.",
           "options": [
+            {
+              "value": "1em",
+              "label": "Body font size"
+            },
+            {
+              "value": "--h6-font-size",
+              "label": "Extra small"
+            },
             {
               "value": "--h5-font-size",
               "label": "Small"
@@ -600,7 +675,7 @@
               "label": "Large"
             }
           ],
-          "default": "--h4-font-size"
+          "default": "1em"
         },
         {
           "type": "range",
@@ -658,6 +733,36 @@
         },
         {
           "type": "header",
+          "content": "Button"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label",
+          "info": "Links to the URL specified in the \"Link URL\" setting."
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": "Button style",
+          "options": [
+            {
+              "value": "link",
+              "label": "Link"
+            },
+            {
+              "value": "btn btn--primary",
+              "label": "Primary button"
+            },
+            {
+              "value": "btn btn--secondary",
+              "label": "Secondary button"
+            }
+          ],
+          "default": "btn btn--primary"
+        },
+        {
+          "type": "header",
           "content": "Style"
         },
         {
@@ -696,7 +801,7 @@
           "type": "range",
           "id": "position",
           "label": "Position in results",
-          "info": "Inserts the promotion before the collection card in this position.",
+          "info": "Inserts the promotion before the collection card in this position. Only applies to the first page of results.",
           "min": 1,
           "max": 50,
           "step": 1,
@@ -760,6 +865,11 @@
           "default": "1"
         },
         {
+          "type": "url",
+          "id": "link_url",
+          "label": "Link URL"
+        },
+        {
           "type": "text",
           "id": "title",
           "label": "Title",
@@ -770,11 +880,6 @@
           "id": "content",
           "default": "<p>Promotion text</p>",
           "label": "Text"
-        },
-        {
-          "type": "url",
-          "id": "link_url",
-          "label": "URL"
         },
         {
           "type": "header",

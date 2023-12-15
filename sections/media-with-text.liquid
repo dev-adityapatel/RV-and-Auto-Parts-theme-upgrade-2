@@ -1,4 +1,8 @@
-{{ 'media-with-text.css' | asset_url | stylesheet_tag }}
+{%- if section.index > 2 -%}
+  <link rel="stylesheet" href="{{ 'media-with-text.css' | asset_url }}" media="print" onload="this.media='all'">
+{%- else -%}
+  {{ 'media-with-text.css' | asset_url | stylesheet_tag }}
+{%- endif -%}
 
 {%- liquid
   # constants
@@ -42,6 +46,11 @@
   if bg_color == settings.bg_color or bg_color == 'rgba(0,0,0,0)'
     assign bg_color = false
   endif
+
+  assign quality = settings.image_quality
+  if section.settings.image_fit == "cover"
+    assign quality = 1.4
+  endif
 -%}
 
 {%- capture video_component -%}
@@ -61,11 +70,11 @@
 {%- endcapture -%}
 
 
-<div class="section section--full-width section--padded {% unless color_scheme == 'none' %} color-scheme color-scheme--{{ color_scheme }}{% endunless %}">
+<div class="section section--full-width section--padded {% unless color_scheme == 'none' or section.settings.only_content_color_scheme %} color-scheme color-scheme--{{ color_scheme }}{% endunless %}">
   <div class="container">
-    <div class="media-with-text{% if section.settings.layout == 'right' %} media-with-text--reverse{% endif %}"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
-      <div class="media-with-text__media {% if media_type == 'video' %} video-section{% endif %} relative flex flex-col justify-center overflow-hidden">
-        <div class="media w-full{% if media_type == 'video' %} absolute top-0 left-0 h-full video-played-hidden{% else %} relative{% endif %}"{% if media_type == 'image' and image != blank %} style="padding-top: {{ 1 | divided_by: image.aspect_ratio | times: 100 }}%;"{% endif %}>
+    <div class="media-with-text{% if section.settings.layout == 'right' %} media-with-text--reverse{% endif %}"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %} style="--media-width: {{ section.settings.media_width }}%">
+      <div class="media-with-text__media{% if media_type == 'video' %} video-section{% endif %} relative flex flex-col justify-center overflow-hidden" style="--media-scale: {{ section.settings.media_scale | times: 0.01 }}">
+        <div class="media w-full{% if media_type == 'video' %} absolute{% if section.settings.image_fit == "cover" %} top-0 left-0 h-full{% else %} video-section__media{% endif %} video-played-hidden{% else %} relative{% if section.settings.image_fit == "cover" %} h-full video-section__media--cover{% endif %}{% endif %}"{% if media_type == 'image' and image != blank %} style="padding-top: {{ 1 | divided_by: image.aspect_ratio | times: 100 }}%;"{% endif %}>
           {%- if image != blank -%}
             {%- capture sizes_md %}calc((50vw - {{ gutter_sm | times: 2 }}px) + 9px){% endcapture -%}
             {%- capture sizes -%}
@@ -73,10 +82,12 @@
             {%- endcapture -%}
             {% render 'image',
               image: image,
+              quality: quality,
               widths: '536, 800, 1072, 1280',
               mobile_widths: '690, 800',
               src_width: 536,
               sizes: sizes,
+              section_index: section.index,
               class: 'img-fit'
             %}
           {%- elsif media_type == 'image' -%}
@@ -86,11 +97,17 @@
 
         {%- if media_type == 'video' -%}
           {%- if section.settings.video_autoplay -%}
-            <div class="video-section__media block w-full no-js-hidden">
-              {{ video_component }}
-            </div>
+            <deferred-media class="video-section__media{% if section.settings.image_fit == "contain" %} relative{% endif %} block w-full no-js-hidden">
+              <template>{{ video_component }}</template>
+            </deferred-media>
+
+            <noscript>
+              <div class="video-section__media block w-full">
+                {{ video_component }}
+              </div>
+            </noscript>
           {%- else -%}
-            <deferred-media class="video-section__media block w-full no-js-hidden">
+            <deferred-media class="video-section__media{% if section.settings.image_fit == "contain" %} relative{% endif %} height-clip block w-full no-js-hidden">
               <button type="button" class="video-section__play-btn video-played-hidden absolute top-0 left-0 flex justify-center items-center w-full h-full js-load-media">
                 <span class="visually-hidden">{{ 'general.icon_labels.play' | t }}</span>
                 {%- render 'icon-play' -%}
@@ -103,7 +120,7 @@
         {%- endif -%}
       </div>
 
-      <div class="media-with-text__text flex flex-col justify-center {% if section.settings.layout == 'right' %} mie-auto{% endif %}"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
+      <div class="media-with-text__text{% if section.settings.only_content_color_scheme and color_scheme != 'none' %} color-scheme color-scheme--{{ color_scheme }}{% elsif section.settings.image_fit == "cover" %} md:mt-14 md:mb-14{% endif %} flex flex-col justify-center {% if section.settings.layout == 'right' %} mie-auto{% endif %}"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
         <div class="{{ section.settings.text_align }}">
           {%- for block in section.blocks -%}
             {%- case block.type -%}
@@ -192,7 +209,7 @@
     },
     {
       "type": "header",
-      "content": "Style"
+      "content": "Layout"
     },
     {
       "type": "select",
@@ -209,6 +226,43 @@
         }
       ],
       "default": "left"
+    },
+    {
+      "type": "select",
+      "id": "image_fit",
+      "label": "Media fit on large screens",
+      "info": "Choose \"Natural\" to avoid cropping the media or \"Cover\" to fill available space (media may be cropped).",
+      "options": [
+        {
+          "value": "contain",
+          "label": "Natural"
+        },
+        {
+          "value": "cover",
+          "label": "Cover"
+        }
+      ],
+      "default": "contain"
+    },
+    {
+      "type": "range",
+      "id": "media_width",
+      "min": 40,
+      "max": 60,
+      "step": 1,
+      "unit": "%",
+      "label": "Media width on large screens",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "media_scale",
+      "min": 40,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Media scale on large screens",
+      "default": 100
     },
     {
       "type": "select",
@@ -229,6 +283,10 @@
         }
       ],
       "default": "text-start"
+    },
+    {
+      "type": "header",
+      "content": "Style"
     },
     {
       "type": "select",
@@ -253,6 +311,11 @@
         }
       ],
       "default": "none"
+    },
+    {
+      "type": "checkbox",
+      "id": "only_content_color_scheme",
+      "label": "Apply color scheme only to the content"
     }
   ],
   "blocks": [

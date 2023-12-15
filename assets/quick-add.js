@@ -275,6 +275,11 @@ if (!customElements.get('quick-add-drawer')) {
      * Builds the markup for the drawer content element.
      */
     updateContent() {
+      let weightElem = this.getElementHtml('.product-info__weight');
+      if (weightElem && weightElem.length > 0) {
+        weightElem = `<div class="product-info__weight text-sm mt-2">${weightElem}</div>`;
+      }
+
       this.content.innerHTML = `
         <div class="quick-add-info grid mb-8">
           <div class="quick-add-info__media${theme.settings.blendProductImages ? ' image-blend' : ''}"></div>
@@ -287,6 +292,7 @@ if (!customElements.get('quick-add-drawer')) {
                 ${this.getElementHtml('.product-title')}
               </a>
             </div>
+            ${weightElem}
             <hr>
             <div class="product-price">
               ${this.getElementHtml('.product-price')}

@@ -1,11 +1,28 @@
 {%- comment -%}
   Build: lg:col-span-1 lg:col-span-2 lg:col-span-3 lg:col-span-4 row-span-2 row-span-3
 {%- endcomment -%}
-<link rel="stylesheet" href="{{ 'gallery.css' | asset_url }}">
+
+{%- if section.index > 2 -%}
+  <link rel="stylesheet" href="{{ 'gallery.css' | asset_url }}" media="print" onload="this.media='all'">
+
+  {%- if section.settings.mobile_carousel -%}
+    <link rel="stylesheet" href="{{ 'gallery-mobile-carousel.css' | asset_url }}" media="print" onload="this.media='all'">
+  {%- endif -%}
+{%- else -%}
+  {{ 'gallery.css' | asset_url | stylesheet_tag }}
+
+  {%- if section.settings.mobile_carousel -%}
+    {{ 'gallery-mobile-carousel.css' | asset_url | stylesheet_tag }}
+  {%- endif -%}
+{%- endif -%}
 
 {%- for block in section.blocks -%}
   {%- if block.settings.video_shopify != blank -%}
-    <link rel="stylesheet" href="{{ 'video.css' | asset_url }}">
+    {%- if section.index > 2 -%}
+      <link rel="stylesheet" href="{{ 'video.css' | asset_url }}" media="print" onload="this.media='all'">
+    {%- else -%}
+      {{ 'video.css' | asset_url | stylesheet_tag }}
+    {%- endif -%}
     <script src="{{ 'video.js' | asset_url }}" defer="defer"></script>
     {%- break -%}
   {%- endif -%}
@@ -27,7 +44,34 @@
     assign grid_classes = grid_classes | append: ' lg:grid-cols-3'
   endif
 
-  assign color_scheme = section.settings.color_scheme
+  assign text_color_scheme = section.settings.color_scheme
+
+  if text_color_scheme == "white"
+    assign brightness = section.settings.transparent_content_color | color_brightness
+    assign alpha = section.settings.transparent_content_color | color_extract: 'alpha'
+    if brightness < 190 and alpha > 0
+      assign transparent_text_contrast = "255 255 255"
+      assign transparent_hover_color = section.settings.transparent_content_color | color_lighten: 10
+    else
+      assign transparent_text_contrast = "0 0 0"
+      assign transparent_hover_color = section.settings.transparent_content_color | color_darken: 10
+    endif
+  endif
+
+  assign section_color_scheme = section.settings.section_color_scheme
+  assign section_bg_color = false
+
+  if section_color_scheme == '1'
+    assign section_bg_color = settings.color_scheme_1_bg
+  elsif section_color_scheme == '2'
+    assign section_bg_color = settings.color_scheme_2_bg
+  elsif section_color_scheme == '3'
+    assign section_bg_color = settings.color_scheme_3_bg
+  endif
+
+  if section_bg_color == settings.bg_color or section_bg_color == 'rgba(0,0,0,0)'
+    assign section_bg_color = false
+  endif
 -%}
 
 {%- style -%}
@@ -40,7 +84,15 @@
   {% endfor %}
 
   #{{ section.id }} .gallery-block { min-height: {{ section.settings.fixed_height_mobile }}px; }
-  #{{ section.id }} .gallery-block.row-span-2, #{{ section.id }} .gallery-block.row-span-3 { min-height: {{ section.settings.fixed_height_mobile | times: 1.75 }}px; }
+  {% unless section.settings.mobile_carousel %}#{{ section.id }} .gallery-block.row-span-2, #{{ section.id }} .gallery-block.row-span-3 { min-height: {{ section.settings.fixed_height_mobile | times: 1.75 }}px; }{% endunless %}
+
+  {%- if text_color_scheme == "white" -%}
+    #{{ section.id }} {
+      --color-scheme-white-text: {{ section.settings.transparent_content_color.red }} {{ section.settings.transparent_content_color.green }} {{ section.settings.transparent_content_color.blue }};
+      --color-scheme-white-hover: {{ transparent_hover_color.red }} {{ transparent_hover_color.green }} {{ transparent_hover_color.blue }};
+      --color-scheme-white-text-contrast: {{ transparent_text_contrast }};
+    }
+  {%- endif -%}
 
   @media (min-width: {{ breakpoint_md }}px) {
     #{{ section.id }} .gallery-block { min-height: calc({{ section.settings.fixed_height_desktop }}px + 8vw); }
@@ -49,7 +101,7 @@
   }
 {%- endstyle -%}
 
-<div class="section">
+<div class="section{% unless section_color_scheme == 'none' %} color-scheme color-scheme--{{ section_color_scheme }} section--padded section--full-width{% endunless %}">
   {%- if section.settings.title != blank or section.settings.button_label != blank -%}
     <div class="container">
       <div class="section__header items-center flex{% if section.settings.heading_align == 'text-center' %} flex-col text-center{% elsif section.settings.heading_align == 'text-end' %} flex-row-reverse flex-wrap{% else %} flex-row flex-wrap{% endif %} gap-x-theme"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
@@ -65,6 +117,8 @@
       </div>
     </div>
   {%- endif -%}
+
+  {% if section.settings.mobile_carousel %}<div class="gallery-mobile-carousel">{% endif %}
 
   <div class="container" id="{{ section.id }}">
     <div class="gallery grid {{ grid_classes }}">
@@ -85,11 +139,12 @@
                   {%- capture sizes %}{% render 'sizes-attribute', grid: true, min: section.settings.gallery_cols_min, sm: block.settings.columns %}{% endcapture -%}
                   {% render 'image',
                     image: img,
-                    widths: '400, 800, 1200, 1400',
+                    widths: '480, 800, 980',
                     src_width: 800,
                     src_placeholder: true,
                     sizes: sizes,
                     quality: 1,
+                    section_index: section.index,
                     class: 'img-fit'
                   %}
                 {%- else -%}
@@ -98,17 +153,19 @@
               </div>
 
               {%- if block.settings.video_shopify != blank -%}
-                <div class="video-section__media media media--has-overlay overflow-hidden absolute top-0 left-0 w-full h-full">
-                  <video-component class="has-iframe absolute top-0 left-0 w-full h-full no-js-hidden"
-                                  data-autoplay="true"
-                                  data-background="true">
-                    {{ block.settings.video_shopify | video_tag: class: 'img-fit pointer-events-none', playsinline: true, autoplay: true, muted: true, loop: true, controls: false, poster: '' | replace: '<img ', '<img loading="lazy" hidden ' }}
-                  </video-component>
-                </div>
+                <deferred-media class="video-section__media media media--has-overlay overflow-hidden absolute top-0 left-0 w-full h-full">
+                  <template>
+                    <video-component class="has-iframe absolute top-0 left-0 w-full h-full no-js-hidden"
+                                    data-autoplay="true"
+                                    data-background="true">
+                      {{ block.settings.video_shopify | video_tag: class: 'img-fit pointer-events-none', playsinline: true, autoplay: true, muted: true, loop: true, controls: false, poster: '' | replace: '<img ', '<img loading="lazy" hidden ' }}
+                    </video-component>
+                  </template>
+                </deferred-media>
               {%- endif -%}
 
               {%- if block.settings.title != blank or block.settings.subheading != blank or block.settings.button_label != blank -%}
-                <div class="gallery-block__image-text{% if color_scheme == "white" %} gallery-block__image-text--transparent{% endif %} color-scheme color-scheme--{{ color_scheme }} text-overlay text-overlay--grow {{ block.settings.text_alignment }} relative"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
+                <div class="gallery-block__image-text{% if text_color_scheme == "white" %} gallery-block__image-text--transparent{% endif %} color-scheme color-scheme--{{ text_color_scheme }} text-overlay text-overlay--grow {{ block.settings.text_alignment }} relative"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
                   {%- if block.settings.subheading != blank -%}
                     <p class="text-overlay__block subheading text-current">
                       {{- block.settings.subheading | escape -}}
@@ -137,6 +194,8 @@
       {%- endfor -%}
     </div>
   </div>
+
+  {% if section.settings.mobile_carousel %}</div>{% endif %}
 </div>
 
 {% schema %}
@@ -199,9 +258,16 @@
       "default": 4
     },
     {
-      "type": "radio",
+      "type": "checkbox",
+      "id": "mobile_carousel",
+      "label": "Show as a carousel on mobile",
+      "default": false
+    },
+    {
+      "type": "select",
       "id": "gallery_cols_min",
       "label": "Minimum columns on mobile",
+      "info": "Only applies when a carousel is not used on mobile.",
       "options": [
         {
           "value": "1",
@@ -236,7 +302,35 @@
     },
     {
       "type": "header",
-      "content": "Style"
+      "content": "Section style"
+    },
+    {
+      "type": "select",
+      "id": "section_color_scheme",
+      "label": "Color scheme",
+      "options": [
+        {
+          "value": "none",
+          "label": "Default"
+        },
+        {
+          "value": "1",
+          "label": "Scheme 1"
+        },
+        {
+          "value": "2",
+          "label": "Scheme 2"
+        },
+        {
+          "value": "3",
+          "label": "Scheme 3"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "header",
+      "content": "Text style"
     },
     {
       "type": "select",
@@ -245,7 +339,7 @@
       "options": [
         {
           "value": "white",
-          "label": "White"
+          "label": "Transparent background"
         },
         {
           "value": "default",
@@ -265,6 +359,13 @@
         }
       ],
       "default": "white"
+    },
+    {
+      "type": "color",
+      "id": "transparent_content_color",
+      "label": "Text color",
+      "info": "Only applies when the \"Transparent background\" color scheme is chosen.",
+      "default": "#ffffff"
     }
   ],
   "blocks": [
@@ -372,7 +473,7 @@
         {
           "type": "select",
           "id": "overlay_position",
-          "label": "Overlay position",
+          "label": "Text position",
           "options": [
             {
               "value": "justify-start items-start",

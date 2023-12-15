@@ -44,7 +44,7 @@
   <div class="container">
 
     {%- if section.settings.heading != blank -%}
-      <div class="section__header reading-width rte"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
+      <div class="mb-heading reading-width rte"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
         <h2 class="h4 section__heading {{ section.settings.heading_align }}">{{ section.settings.heading | escape }}</h2>
       </div>
     {%- endif -%}
@@ -266,7 +266,7 @@
       "label": "Image"
     },
     {
-      "type": "radio",
+      "type": "select",
       "id": "image_position",
       "label": "Image position",
       "options": [

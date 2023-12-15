@@ -3,16 +3,7 @@
     "collection-banner": {
       "type": "main-collection-banner",
       "disabled": true,
-      "settings": {
-        "show_collection_title": true,
-        "show_product_count": true,
-        "show_collection_description": true,
-        "text_align": "text-start",
-        "collection_image": "natural",
-        "use_product_image": false,
-        "text_width": "standard",
-        "color_scheme": "default"
-      }
+      "settings": {}
     },
     "countdown-timer": {
       "type": "countdown-timer",
@@ -37,7 +28,6 @@
             "end_date": "",
             "end_time": "",
             "end_text": "",
-            "enlarge_end_text": false,
             "hide_on_end": false
           }
         }
@@ -51,16 +41,7 @@
         "height_mode": "fixed",
         "fixed_height_desktop": 560,
         "fixed_height_mobile": 350,
-        "overlay_position": "justify-center",
-        "text_align": "text-center",
-        "mob_center_text": false,
-        "countdown_size": "24",
-        "use_custom_colors": false,
-        "count_color": "#fff",
-        "bg_color": "#070707",
         "color_scheme": "1",
-        "full_width": true,
-        "tint_color": "#000000",
         "tint_opacity": 0
       }
     },
@@ -74,11 +55,9 @@
         "filters_open_lg": false,
         "stick_on_scroll": true,
         "show_filter_counts": true,
-        "expand_filters": true,
         "max_filter_options": 6,
         "enable_sorting": true,
-        "show_feat_sort_opt": true,
-        "sort_first": true
+        "show_feat_sort_opt": true
       }
     },
     "promo-strip": {
@@ -88,24 +67,19 @@
           "type": "heading",
           "settings": {
             "heading": "New Season Sale!",
-            "heading_size": "h4",
-            "show_on_mobile": true,
-            "show_on_desktop": true
+            "heading_size": "h4"
           }
         },
         "promo-strip-text": {
           "type": "text",
           "settings": {
-            "text": "<p>promo codes for the win!<\/p>",
-            "enlarge_text": false,
-            "show_on_mobile": true,
-            "show_on_desktop": true
+            "enlarge_text": false
           }
         },
         "promo-strip-discount": {
           "type": "discount",
           "settings": {
-            "discount_code": "10offmay"
+            "discount_code": "NEWSEASON10"
           }
         }
       },
@@ -117,9 +91,7 @@
       "settings": {
         "section_height": "medium",
         "color_scheme": "3",
-        "full_width": true,
-        "dividers": "none",
-        "prevent_animation": false
+        "dividers": "none"
       }
     },
     "collection-list": {
@@ -127,51 +99,35 @@
       "blocks": {
         "collection-list-collection-1": {
           "type": "collection",
-          "settings": {
-            "collection": "inside-rv"
-          }
+          "settings": {}
         },
         "collection-list-collection-2": {
           "type": "collection",
-          "settings": {
-            "collection": "outdoor-living"
-          }
+          "settings": {}
         },
         "collection-list-collection-3": {
           "type": "collection",
-          "settings": {
-            "collection": "plumbing-freshwater-waste-sewer"
-          }
+          "settings": {}
         },
         "collection-list-collection-4": {
           "type": "collection",
-          "settings": {
-            "collection": "electrical-lighting"
-          }
+          "settings": {}
         },
         "collection-list-collection-5": {
           "type": "collection",
-          "settings": {
-            "collection": "jacks-levelers-slideouts-camper-skidwheels"
-          }
+          "settings": {}
         },
         "collection-list-collection-6": {
           "type": "collection",
-          "settings": {
-            "collection": "hardware"
-          }
+          "settings": {}
         },
         "collection-list-collection-7": {
           "type": "collection",
-          "settings": {
-            "collection": "covers"
-          }
+          "settings": {}
         },
         "collection-list-collection-8": {
           "type": "collection",
-          "settings": {
-            "collection": "performance"
-          }
+          "settings": {}
         }
       },
       "block_order": [
@@ -187,12 +143,8 @@
       "settings": {
         "title": "Our collections",
         "heading_align": "text-start",
-        "button_label": "",
-        "button_link": "",
         "layout": "carousel",
-        "card_size": "small",
-        "use_product_image": true,
-        "circle_image": true
+        "use_product_image": true
       }
     }
   },

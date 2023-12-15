@@ -21,6 +21,11 @@
   if section.settings.minimise_search_mobile or section.settings.minimise_search_desktop
     assign search_is_minimised = true
   endif
+
+  assign show_search_types = false
+  if settings.show_search_types and shop.types
+    assign show_search_types = true
+  endif
 -%}
 
 {%- style -%}
@@ -32,6 +37,7 @@
   --nav-child-bg-color:  {{ section.settings.bg_color.rgb }};
   --nav-child-text-color: {{ section.settings.text_color.rgb }};
   --header-accent-color: {{ section.settings.accent_color.rgb }};
+  --search-bg-color: {{ section.settings.bg_color | color_mix: section.settings.text_color, 90 }};
   {% unless section.settings.logo %}
     --logo_type_scale: var(--body-font-size) * {{ section.settings.logo_type_scale }};
     --logo_font-size: calc((var(--logo_type_scale) / 1.5) * var(--fluid-1-5));
@@ -46,9 +52,9 @@
   {%- if section.settings.enable_sticky -%} data-is-sticky="true"{%- endif -%}
   {%- if search_is_minimised -%} data-is-search-minimised="true"{%- endif -%}
   style="--header-transition-speed: 300ms">
-  <header class="header__grid container flex flex-wrap items-center">
-    <div class="logo flex js-closes-menu">
-      {%- if request.page_type == 'index' -%}
+  <header class="header__grid{% if section.settings.logo_center %} header__grid--centered-logo{% else %} header__grid--left-logo{% endif %} container flex flex-wrap items-center">
+    <div class="header__logo logo{% if section.settings.logo_center %} text-center{% endif %} flex js-closes-menu">
+      {%- if request.page_type == 'index' and section.settings.logo_h1 -%}
         <h1 class="logo__h1 m-0">
       {%- endif -%}
         <a class="logo__link inline-block" href="{{ routes.root_url }}">
@@ -73,33 +79,54 @@
             <span class="logo__text h2 text-theme-text m-0">{%- if section.settings.logo_text != blank -%}{{- section.settings.logo_text -}}{%- else -%}{{ shop.name }}{%- endif -%}</span>
           {%- endif -%}
         </a>
-      {%- if request.page_type == 'index' -%}
+      {%- if request.page_type == 'index' and section.settings.logo_h1 -%}
         </h1>
       {%- endif -%}
     </div>
 
     {%- if section.settings.enable_search -%}
       {%- if settings.enable_predictive_search -%}
-        <link rel="stylesheet" href="{{ 'predictive-search.css' | asset_url }}" media="print" onload="this.media='all'">
+        <link rel="stylesheet" href="{{ 'predictive-search.css' | asset_url }}"{% unless show_search_types %} media="print" onload="this.media='all'"{% endunless %}>
         <script src="{{ 'predictive-search.js' | asset_url }}" defer="defer"></script>
         <script src="{{ 'tabs.js' | asset_url }}" defer="defer"></script>
       {%- endif -%}
 
-      <div class="header__search{% if section.settings.minimise_search_mobile %} header__search--collapsible-mob{% endif %}{% if section.settings.minimise_search_desktop %} header__search--collapsible-desktop{% endif %}{% if search_is_minimised %} js-search-bar{% endif %} js-closes-menu"{% if search_is_minimised %} id="search-bar"{% endif %}>
-        {% render 'predictive-search', id: 'header-search' %}
+      <div class="header__search{% if section.settings.minimise_search_mobile %} header__search--collapsible-mob{% endif %}{% if section.settings.minimise_search_desktop %} header__search--collapsible-desktop{% endif %}{% if search_is_minimised %} js-search-bar{% endif %} relative js-closes-menu"{% if search_is_minimised %} id="search-bar"{% endif %}>
+        {%- if section.settings.logo_center and section.settings.minimise_search_desktop -%}
+          <a class="header__icon header__icon--search-left absolute hidden md:block js-show-search-left" href="{{ routes.search_url }}" aria-controls="search-bar">
+            <span class="header__icon--search-left-search">
+              {% render 'icon-search' %}
+            </span>
+            <span class="header__icon--search-left-close">
+              {% render 'icon-close' %}
+            </span>
+            <span class="visually-hidden">{{ 'general.icon_labels.search' | t }}</span>
+          </a>
+        {%- endif -%}
+
+        {% render 'predictive-search', id: 'header-search', show_search_types: show_search_types %}
       </div>
+    {%- elsif section.settings.logo_center -%}
+      <div class="header__search"></div>
     {%- endif -%}
 
     <div class="header__icons flex justify-end mis-auto js-closes-menu">
-      <a id="cm-mobile-search-box" class="header__icon search"></a>
-      <a class="header__icon">
-        <div id="cm-garage"></div>
-      </a>
       {%- if section.settings.enable_search and search_is_minimised -%}
-        <a class="header__icon {% if section.settings.minimise_search_mobile and section.settings.minimise_search_desktop == false %}md:hidden {% elsif section.settings.minimise_search_mobile == false and section.settings.minimise_search_desktop %}hidden md:block{% endif %} js-show-search" href="{{ routes.search_url }}" aria-controls="search-bar">
-          {% render 'icon-search' %}
-          <span class="visually-hidden">{{ 'general.icon_labels.search' | t }}</span>
-        </a>
+        {%- unless section.settings.logo_center and section.settings.minimise_search_mobile == false and section.settings.minimise_search_desktop -%}
+          {%- liquid
+            if section.settings.logo_center and section.settings.minimise_search_mobile
+              assign search_button_class = "md:hidden"
+            elsif section.settings.minimise_search_mobile and section.settings.minimise_search_desktop == false
+              assign search_button_class = "md:hidden"
+            elsif section.settings.minimise_search_mobile == false and section.settings.minimise_search_desktop
+              assign search_button_class = "hidden md:block"
+            endif
+          -%}
+          <a class="header__icon {{ search_button_class }} js-show-search" href="{{ routes.search_url }}" aria-controls="search-bar">
+            {% render 'icon-search' %}
+            <span class="visually-hidden">{{ 'general.icon_labels.search' | t }}</span>
+          </a>
+        {%- endunless -%}
       {%- endif -%}
       {%- if shop.customer_accounts_enabled -%}
         {%- if customer -%}
@@ -149,9 +176,9 @@
             <span class="main-menu__toggle-icon" aria-hidden="true"></span>
             <span class="visually-hidden">{{ 'general.icon_labels.menu' | t }}</span>
           </summary>
-          <div class="main-menu__content has-motion">
+          <div class="main-menu__content has-motion {% if section.settings.quicklinks_menu == blank and section.settings.cta_show == false and section.settings.menu_center %}justify-center{% else %}justify-between{% endif %}">
             <nav aria-label="{{ 'accessibility.main_navigation' | t }}">
-              <ul class="main-nav">
+              <ul class="main-nav{% if section.settings.quicklinks_menu == blank and section.settings.cta_show == false and section.settings.menu_center %} justify-center{% endif %}">
                 {%- for link in section.settings.menu.links -%}
                   {%- assign link_title_downcase = link.title | downcase -%}
                   <li>
@@ -318,9 +345,8 @@
                                           <div class="main-nav__collection-image media relative main-nav__collection-image--{{ mega_nav.settings.collection_images }} hidden md:block">
                                             {% render 'image',
                                               image: collection_image_object,
-                                              src_width: collection_image_size_large,
+                                              src_width: collection_image_size_xlarge,
                                               srcset_2x: true,
-                                              class: "img-fit",
                                               alt_text: alt_text
                                             %}
                                           </div>
@@ -366,7 +392,7 @@
                                           </div>
                                         </summary>
 
-                                        <div class="disclosure__panel{% if collection_image and mega_nav and mega_nav.type == "pills" %} main-nav__image-container{% endif %}">
+                                        <div class="disclosure__panel{% if collection_image and mega_nav and mega_nav.type == "pills" %} main-nav__image-container{% endif %} has-motion">
                                           {%- if collection_image and mega_nav and mega_nav.type == "pills" -%}
                                             {%- liquid
                                               if mega_nav.settings.collection_use_product_image
@@ -376,12 +402,11 @@
                                               endif
                                             -%}
 
-                                            <div class="main-nav__collection-image main-nav__collection-image--{{ mega_nav.settings.collection_images }} media relative hidden md:block">
+                                            <div class="main-nav__collection-image shrink-0 main-nav__collection-image--{{ mega_nav.settings.collection_images }} media relative hidden md:block">
                                               {% render 'image',
                                                 image: collection_image_object,
                                                 src_width: collection_image_size_xlarge,
                                                 srcset_2x: true,
-                                                class: "img-fit",
                                                 alt_text: alt_text
                                               %}
                                             </div>
@@ -521,8 +546,10 @@
                                         </div>
                                       {%- endif -%}
                                       {%- if mega_nav.settings.promo1_content != blank -%}
-                                        <div class="promo__content relative rte" style="--font-size: {{ mega_nav.settings.promo1_text_size }}px; max-width: {{ mega_nav.settings.promo1_text_width }}%;">
-                                          {{- mega_nav.settings.promo1_content -}}
+                                        <div class="promo__content relative" style="--font-size: {{ mega_nav.settings.promo1_text_size }}px; max-width: {{ mega_nav.settings.promo1_text_width }}%;">
+                                          <div class="rte rte--inherit-heading-color">
+                                            {{- mega_nav.settings.promo1_content -}}
+                                          </div>
                                         </div>
                                       {%- endif -%}
                                     {%- if is_link -%}
@@ -552,8 +579,10 @@
                                         </div>
                                       {%- endif -%}
                                       {%- if mega_nav.settings.promo2_content != blank -%}
-                                        <div class="promo__content relative rte" style="--font-size: {{ mega_nav.settings.promo2_text_size }}px; max-width: {{ mega_nav.settings.promo2_text_width }}%;">
-                                          {{- mega_nav.settings.promo2_content -}}
+                                        <div class="promo__content relative" style="--font-size: {{ mega_nav.settings.promo2_text_size }}px; max-width: {{ mega_nav.settings.promo2_text_width }}%;">
+                                          <div class="rte rte--inherit-heading-color">
+                                            {{- mega_nav.settings.promo2_content -}}
+                                          </div>
                                         </div>
                                       {%- endif -%}
                                     {%- if is_link -%}
@@ -583,8 +612,10 @@
                                         </div>
                                       {%- endif -%}
                                       {%- if mega_nav.settings.promo3_content != blank -%}
-                                        <div class="promo__content relative rte" style="--font-size: {{ mega_nav.settings.promo3_text_size }}px; max-width: {{ mega_nav.settings.promo3_text_width }}%;">
-                                          {{- mega_nav.settings.promo3_content -}}
+                                        <div class="promo__content relative" style="--font-size: {{ mega_nav.settings.promo3_text_size }}px; max-width: {{ mega_nav.settings.promo3_text_width }}%;">
+                                          <div class="rte rte--inherit-heading-color">
+                                            {{- mega_nav.settings.promo3_content -}}
+                                          </div>
                                         </div>
                                       {%- endif -%}
                                     {%- if is_link -%}
@@ -606,7 +637,7 @@
               </ul>
             </nav>
 
-            {%- if section.settings.quicklinks_menu != blank -%}
+            {%- if section.settings.quicklinks_menu != blank or section.settings.cta_show -%}
               <nav aria-label="{{ 'accessibility.secondary_navigation' | t }}" class="secondary-nav-container">
                 <ul class="secondary-nav" role="list">
                   {% for link in section.settings.quicklinks_menu.links %}
@@ -621,6 +652,21 @@
                       endif
                     -%}
                   {% endfor %}
+
+                  {%- if section.settings.cta_show -%}
+                    {%- assign cta_bg_color_hover = section.settings.cta_bg_color | color_mix: section.settings.cta_text_color, 85 | color_lighten: 3 -%}
+                    <li class="inline-flex items-center self-center">
+                      <a href="{{ section.settings.cta_link }}" class="secondary-nav__item secondary-nav__cta{% if section.settings.cta_bg_color.alpha > 0 or section.settings.cta_border_color.alpha > 0 %} secondary-nav__cta--button{% endif %} flex items-center"{% if link.current %} aria-current="page"{% endif %}
+                        style="{% if section.settings.cta_bg_color.alpha > 0 %}--cta-bg-color: {{ section.settings.cta_bg_color.rgb }};--cta-bg-hover-color: {{ cta_bg_color_hover.rgb }};{% endif %}color: {{ section.settings.cta_text_color }};{% if section.settings.cta_border_color.alpha > 0 %}border: var(--btn-border-width, 1px) solid {{ section.settings.cta_border_color }};{% endif %}">
+                        {%- if section.settings.cta_icon != "none" -%}
+                          {%- render 'icon', icon: section.settings.cta_icon, width: 17, height: 17 -%}
+                        {%- endif -%}
+                        {%- if section.settings.cta_label != blank -%}
+                          <span>{{ section.settings.cta_label }}</span>
+                        {%- endif -%}
+                      </a>
+                    </li>
+                  {%- endif -%}
                 </ul>
               </nav>
             {%- endif -%}
@@ -699,17 +745,17 @@
       "default": false
     },
     {
-      "type": "radio",
+      "type": "select",
       "id": "mobile_menu_position",
       "label": "Mobile menu icon position",
       "options": [
         {
-          "value": "burger-right",
-          "label": "Right"
-        },
-        {
           "value": "burger-left",
           "label": "Left"
+        },
+        {
+          "value": "burger-right",
+          "label": "Right"
         }
       ],
       "default": "burger-right"
@@ -766,6 +812,19 @@
       "default": 150
     },
     {
+      "type": "checkbox",
+      "id": "logo_h1",
+      "label": "Make the logo an <h1> on the homepage",
+      "info": "If a section on the homepage contains a primary page heading, this should be unticked. [Learn more](https://cleancanvas.co.uk/support/enterprise/seo)",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "logo_center",
+      "label": "Center logo on large screens",
+      "default": false
+    },
+    {
       "type": "header",
       "content": "Search"
     },
@@ -773,6 +832,7 @@
       "type": "checkbox",
       "id": "enable_search",
       "label": "Enable search",
+      "info": "See \"Theme Settings > Search\" for more search settings.",
       "default": true
     },
     {
@@ -799,6 +859,13 @@
     },
     {
       "type": "checkbox",
+      "id": "menu_center",
+      "label": "Center menu links on large screens",
+      "info": "Ony applies when a \"Quicklinks menu/call to action\" is not specified.",
+      "default": false
+    },
+    {
+      "type": "checkbox",
       "id": "repeat_links",
       "label": "Add 'Go to' links to submenus [Read more](https://cleancanvas.co.uk/support/enterprise/sections/header/go-to-links)",
       "default": true
@@ -811,10 +878,206 @@
       "default": "Sale"
     },
     {
+      "type": "header",
+      "content": "Quicklinks - Menu"
+    },
+    {
       "type": "link_list",
       "id": "quicklinks_menu",
-      "label": "Quicklinks menu",
+      "label": "Menu",
       "info": "Shows a maximum of four menu items separately to the main menu. This menu does not support dropdowns."
+    },
+    {
+      "type": "header",
+      "content": "Quicklinks - Call to action"
+    },
+    {
+      "type": "checkbox",
+      "id": "cta_show",
+      "label": "Show call to action",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "cta_icon",
+      "label": "Icon",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "award",
+          "label": "Award"
+        },
+        {
+          "value": "box",
+          "label": "Box"
+        },
+        {
+          "value": "briefcase",
+          "label": "Briefcase"
+        },
+        {
+          "value": "calendar",
+          "label": "Calendar"
+        },
+        {
+          "value": "chat_bubble",
+          "label": "Chat bubble"
+        },
+        {
+          "value": "check_mark",
+          "label": "Check mark"
+        },
+        {
+          "value": "clock",
+          "label": "Clock"
+        },
+        {
+          "value": "credit_card",
+          "label": "Credit card"
+        },
+        {
+          "value": "dollar_sign",
+          "label": "Dollar sign"
+        },
+        {
+          "value": "dryer",
+          "label": "Dryer"
+        },
+        {
+          "value": "email",
+          "label": "Email"
+        },
+        {
+          "value": "eye",
+          "label": "Eye"
+        },
+        {
+          "value": "feather",
+          "label": "Feather"
+        },
+        {
+          "value": "gift",
+          "label": "Gift"
+        },
+        {
+          "value": "heart",
+          "label": "Heart"
+        },
+        {
+          "value": "iron",
+          "label": "Iron"
+        },
+        {
+          "value": "leaf",
+          "label": "Leaf"
+        },
+        {
+          "value": "leather",
+          "label": "Leather"
+        },
+        {
+          "value": "lock",
+          "label": "Lock"
+        },
+        {
+          "value": "map_pin",
+          "label": "Map pin"
+        },
+        {
+          "value": "pants",
+          "label": "Pants"
+        },
+        {
+          "value": "percent",
+          "label": "Percent"
+        },
+        {
+          "value": "phone",
+          "label": "Phone"
+        },
+        {
+          "value": "plane",
+          "label": "Plane"
+        },
+        {
+          "value": "price_tag",
+          "label": "Price tag"
+        },
+        {
+          "value": "question_mark",
+          "label": "Question mark"
+        },
+        {
+          "value": "return",
+          "label": "Return"
+        },
+        {
+          "value": "ruler",
+          "label": "Ruler"
+        },
+        {
+          "value": "scissors",
+          "label": "Scissors"
+        },
+        {
+          "value": "shirt",
+          "label": "Shirt"
+        },
+        {
+          "value": "shoe",
+          "label": "Shoe"
+        },
+        {
+          "value": "silhouette",
+          "label": "Silhouette"
+        },
+        {
+          "value": "star",
+          "label": "Star"
+        },
+        {
+          "value": "truck",
+          "label": "Truck"
+        },
+        {
+          "value": "washing",
+          "label": "Washing"
+        }
+      ],
+      "default": "phone"
+    },
+    {
+      "type": "text",
+      "id": "cta_label",
+      "label": "Label",
+      "default": "Call us"
+    },
+    {
+      "type": "url",
+      "id": "cta_link",
+      "label": "Link",
+      "info": "Phone number links can be written the format \"tel:+441483123456\". Email address links can be written the format \"mailto:example@shopify.com\"."
+    },
+    {
+      "type": "color",
+      "id": "cta_border_color",
+      "label": "Border color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "cta_bg_color",
+      "label": "Background color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "cta_text_color",
+      "label": "Text color",
+      "default": "#ffffff"
     },
     {
       "type": "header",
@@ -823,19 +1086,19 @@
     {
       "type": "color",
       "id": "bg_color",
-      "label": "Background color",
+      "label": "Header background color",
       "default": "#ffffff"
     },
     {
       "type": "color",
       "id": "text_color",
-      "label": "Text color",
+      "label": "Header text color",
       "default": "#070707"
     },
     {
       "type": "color",
       "id": "accent_color",
-      "label": "Accent color",
+      "label": "Header accent color",
       "default": "#777777"
     }
   ],
@@ -891,7 +1154,7 @@
           "content": "Promotions"
         },
         {
-          "type": "radio",
+          "type": "select",
           "id": "promo_position",
           "label": "Position on large screens",
           "options": [
@@ -1301,7 +1564,7 @@
           "content": "Promotions"
         },
         {
-          "type": "radio",
+          "type": "select",
           "id": "promo_position",
           "label": "Position on large screens",
           "options": [

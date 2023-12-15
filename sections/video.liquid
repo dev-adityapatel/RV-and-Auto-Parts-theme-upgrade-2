@@ -1,6 +1,11 @@
 {%- comment -%}theme-check-disable LiquidTag{%- endcomment -%}
 {%- unless section.settings.video_external == blank and section.settings.video_shopify == blank -%}
-  {{ 'video.css' | asset_url | stylesheet_tag }}
+  {%- if section.index > 2 -%}
+    <link rel="stylesheet" href="{{ 'video.css' | asset_url }}" media="print" onload="this.media='all'">
+  {%- else -%}
+    {{ 'video.css' | asset_url | stylesheet_tag }}
+  {%- endif -%}
+
   <script src="{{ 'video.js' | asset_url }}" defer="defer"></script>
 
   {%- liquid
@@ -71,11 +76,17 @@
 
         <div class="video-section__media block w-full relative"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
           {%- if autoplay -%}
-            <div class="absolute top-0 left-0 w-full h-full no-js-hidden">
-              {{ video_component }}
-            </div>
+            <deferred-media class="absolute block top-0 left-0 w-full h-full no-js-hidden">
+              <template>{{ video_component }}</template>
+            </deferred-media>
+
+            <noscript>
+              <div class="absolute top-0 left-0 w-full h-full">
+                {{ video_component }}
+              </div>
+            </noscript>
           {%- else -%}
-            <deferred-media class="absolute top-0 left-0 w-full h-full no-js-hidden"{% if using_video_tag and autoplay == false %} data-hide-controls-instantly="true"{% endif %}>
+            <deferred-media class="height-clip absolute top-0 left-0 w-full h-full no-js-hidden"{% if using_video_tag and autoplay == false %} data-hide-controls-instantly="true"{% endif %}>
               <button type="button" class="video-section__play-btn absolute top-0 left-0 flex justify-center items-center w-full h-full video-played-hidden js-load-media">
                 <span class="visually-hidden">{{ 'general.icon_labels.play' | t }}</span>
                 {%- render 'icon-play' -%}
@@ -102,6 +113,7 @@
                 src_width: 1680,
                 src_placeholder: true,
                 sizes: sizes,
+                section_index: section.index,
                 class: class
               %}
             {%- else -%}

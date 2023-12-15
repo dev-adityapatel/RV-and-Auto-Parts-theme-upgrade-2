@@ -2,6 +2,34 @@
   "type": "footer",
   "name": "Footer Group",
   "sections": {
+    "footer": {
+      "type": "footer",
+      "blocks": {
+        "text": {
+          "type": "text",
+          "settings": {}
+        },
+        "link-list-1": {
+          "type": "link_list",
+          "settings": {}
+        },
+        "link-list-2": {
+          "type": "link_list",
+          "settings": {}
+        },
+        "newsletter": {
+          "type": "newsletter",
+          "settings": {}
+        }
+      },
+      "block_order": [
+        "text",
+        "link-list-1",
+        "link-list-2",
+        "newsletter"
+      ],
+      "settings": {}
+    },
     "icons-with-text": {
       "type": "icons-with-text",
       "blocks": {
@@ -10,8 +38,7 @@
           "settings": {
             "icon": "chat_bubble",
             "heading": "Visit our support center",
-            "text": "<p>Expert help & advice<\/p>",
-            "link": "shopify:\/\/policies\/contact-information"
+            "text": "<p>Expert help & advice<\/p>"
           }
         },
         "icons-with-text-2": {
@@ -19,8 +46,7 @@
           "settings": {
             "icon": "box",
             "heading": "Check your order status",
-            "text": "<p>Updates & tracking<\/p>",
-            "link": "https:\/\/www.rvautoparts.com\/apps\/track123"
+            "text": "<p>Updates & tracking<\/p>"
           }
         },
         "icons-with-text-3": {
@@ -28,8 +54,7 @@
           "settings": {
             "icon": "return",
             "heading": "Returns & exchanges",
-            "text": "<p>All you need to know<\/p>",
-            "link": "https:\/\/www.rvautoparts.com\/pages\/return-policy"
+            "text": "<p>All you need to know<\/p>"
           }
         },
         "icons-with-text-4": {
@@ -37,18 +62,7 @@
           "settings": {
             "icon": "dollar_sign",
             "heading": "Price-match guarantee",
-            "text": "<p>Our promise to you<\/p>",
-            "link": "https:\/\/www.rvautoparts.com\/pages\/contact"
-          }
-        },
-        "6ddea1e4-188c-40d1-be64-dcf75f8b8ea2": {
-          "type": "item",
-          "disabled": true,
-          "settings": {
-            "icon": "award",
-            "heading": "Item heading",
-            "text": "<p>Short text description<\/p>",
-            "link": ""
+            "text": "<p>Our promise to you<\/p>"
           }
         }
       },
@@ -56,73 +70,12 @@
         "icons-with-text-1",
         "icons-with-text-2",
         "icons-with-text-3",
-        "icons-with-text-4",
-        "6ddea1e4-188c-40d1-be64-dcf75f8b8ea2"
+        "icons-with-text-4"
       ],
       "settings": {
-        "heading": "Need Help",
-        "heading_align": "text-center",
         "icon_size": 36,
-        "icon_position": "beside",
         "section_height": "small",
-        "color_scheme": "1",
-        "full_width": true,
-        "dividers": "border-top",
-        "prevent_animation": true
-      }
-    },
-    "footer": {
-      "type": "footer",
-      "blocks": {
-        "text": {
-          "type": "text",
-          "settings": {
-            "image_width": 150,
-            "heading": "RV & Auto Parts",
-            "text": "<p>12150 Tech Center Dr<\/p><p>Poway, CA 92064<\/p><p>760-651-4005<\/p>",
-            "button_label": "",
-            "button_link": "",
-            "show_social": false,
-            "text_align": "text-start"
-          }
-        },
-        "link-list-2": {
-          "type": "link_list",
-          "settings": {
-            "heading": "Support",
-            "menu": "support"
-          }
-        },
-        "link-list-1": {
-          "type": "link_list",
-          "settings": {
-            "heading": "Account Info",
-            "menu": "account-info"
-          }
-        },
-        "newsletter": {
-          "type": "newsletter",
-          "settings": {
-            "heading": "Newsletter",
-            "text": "<p>Sign up for exclusive offers, original stories, events and more.<\/p>",
-            "collapse_mobile": true
-          }
-        }
-      },
-      "block_order": [
-        "text",
-        "link-list-2",
-        "link-list-1",
-        "newsletter"
-      ],
-      "settings": {
-        "show_back_to_top": true,
-        "show_payment_icons": true,
-        "enable_country_selector": true,
-        "enable_language_selector": true,
-        "secondary_menu": "",
-        "bg_color": "{{ shop.brand.colors.secondary[1].background }}",
-        "text_color": "#f4f4f4"
+        "dividers": "border-top"
       }
     }
   },

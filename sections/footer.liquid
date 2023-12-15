@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="{{ 'footer.css' | asset_url }}">
+<link rel="stylesheet" href="{{ 'footer.css' | asset_url }}" media="print" onload="this.media='all'">
 
 {%- if section.settings.enable_country_selector or section.settings.enable_language_selector -%}
   <script src="{{ 'custom-select.js' | asset_url }}" defer="defer"></script>
@@ -45,6 +45,13 @@
                       </a>
                     </div>
                   {%- endif -%}
+                  {%- if shop.features.follow_on_shop? and block.settings.enable_follow_on_shop -%}
+                    <div class="footer-block__btns">
+                      {% # theme-check-disable %}
+                      {{ shop | login_button: action: 'follow' }}
+                      {% # theme-check-enable %}
+                    </div>
+                  {%- endif -%}
                   {%- if block.settings.show_social -%}
                     {%- liquid
                       if block.settings.text_align == "text-end"
@@ -59,13 +66,6 @@
                       {% render 'social-media', icon: settings.social_custom_icon, icon_height: 24, class: class %}
                     </div>
                   {%- endif -%}
-
-                  <!-- Shopper Approved - sections/footer -->
-                  <div style="margin-top: 2em;">
-                    <a href="https://www.shopperapproved.com/reviews/rvautoparts.com" class="shopperlink new-sa-seals placement-1270"><img src="//www.shopperapproved.com/seal/11777/1270-sa-seal.gif" style="border-radius: 4px;" alt="Customer Reviews" oncontextmenu="var d = new Date(); alert('Copying Prohibited by Law - This image and all included logos are copyrighted by Shopper Approved \251 '+d.getFullYear()+'.'); return false;" /></a><script type="text/javascript"> (function() { var js = window.document.createElement("script"); js.innerHTML = 'function openshopperapproved(o){ var e="Microsoft Internet Explorer"!=navigator.appName?"yes":"no",n=screen.availHeight-90,r=940;return window.innerWidth<1400&&(r=620),window.open(this.href,"shopperapproved","location="+e+",scrollbars=yes,width="+r+",height="+n+",menubar=no,toolbar=no"),o.stopPropagation&&o.stopPropagation(),!1}!function(){for(var o=document.getElementsByClassName("shopperlink"),e=0,n=o.length;e<n;e++)o[e].onclick=openshopperapproved}();'; js.type = "text/javascript"; document.getElementsByTagName("head")[0].appendChild(js);var link = document.createElement('link');link.rel = 'stylesheet';link.type = 'text/css';link.href = "//www.shopperapproved.com/seal/1270.css";document.getElementsByTagName('head')[0].appendChild(link);})();</script>
-                  </div>
-                  <!-- END Shopper Approved - sections/footer -->
-            
                 </div>
               </div>
 
@@ -88,13 +88,13 @@
                           </span>
                         </div>
                       </summary>
-                      <div class="disclosure__panel">
+                      <div class="disclosure__panel has-motion">
                         <div class="disclosure__content">
                           {%- if block.settings.text != blank -%}
                             {{ block.settings.text }}
                           {%- endif -%}
 
-                          {% render 'newsletter-signup', id: 'footer-signup', arrow_button: true %}
+                          {% render 'newsletter-signup', id: 'footer-signup', arrow_button: true, tags: 'newsletter' %}
                         </div>
                       </div>
                     </details>
@@ -112,7 +112,7 @@
                       {{ block.settings.text }}
                     {%- endif -%}
 
-                    {% render 'newsletter-signup', id: 'footer-signup', arrow_button: true %}
+                    {% render 'newsletter-signup', id: 'footer-signup', arrow_button: true, tags: 'newsletter' %}
                   </div>
                 {%- endif -%}
               </div>
@@ -170,7 +170,7 @@
 
         {%- if section.settings.enable_country_selector or section.settings.enable_language_selector -%}
           <div class="lg:col-start-1 lg:row-start-1 footer__localization">
-            {% render 'localization-form', id: 'footer-localization', include_native: true, hide_labels: true %}
+            {% render 'localization-form', id: 'footer-localization', hide_labels: true %}
           </div>
         {%- endif -%}
       </div>
@@ -182,8 +182,10 @@
 
     <div class="footer__base grid grid-cols-1 lg:grid-cols-2 gap-x-theme gap-y-6 text-xs"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
       <div>
-        <span>&copy; {{ "now" | date: "%Y" }} {{ shop.name | link_to: routes.root_url }}</span>.
-        <span>All Rights Reserved</span>.
+        <span>&copy; {{ "now" | date: "%Y" }} {{ shop.name | link_to: routes.root_url }}.</span>
+        {% if section.settings.show_powered_by %}
+          <span>{{ powered_by_link }}</span>
+        {% endif %}
       </div>
       {%- if section.settings.secondary_menu != blank -%}
         <div>
@@ -243,6 +245,12 @@
       "type": "checkbox",
       "id": "show_payment_icons",
       "label": "Show payment icons",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_powered_by",
+      "label": "Show 'Powered by Shopify'",
       "default": true
     },
     {
@@ -356,6 +364,13 @@
           "type": "url",
           "id": "button_link",
           "label": "Button link"
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_follow_on_shop",
+          "default": false,
+          "label": "Enable Follow on Shop",
+          "info": "To allow customers to follow your store on the Shop app from your storefront, Shop Pay must be enabled. [Learn more](https://help.shopify.com/manual/online-store/themes/customizing-themes/follow-on-shop)"
         },
         {
           "type": "checkbox",

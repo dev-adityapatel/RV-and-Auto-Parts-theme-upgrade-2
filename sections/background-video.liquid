@@ -1,11 +1,20 @@
 {%- unless section.settings.video_external == blank and section.settings.video_shopify == blank -%}
 
-  {{ 'video.css' | asset_url | stylesheet_tag }}
-  <script src="{{ 'video.js' | asset_url }}" defer="defer"></script>
+  {%- if section.index > 2 -%}
+    <link rel="stylesheet" href="{{ 'video.css' | asset_url }}" media="print" onload="this.media='all'">
 
-  {%- if section.blocks.size > 0 -%}
-    {{ 'text-overlay.css' | asset_url | stylesheet_tag }}
+    {%- if section.blocks.size > 0 -%}
+      <link rel="stylesheet" href="{{ 'text-overlay.css' | asset_url }}" media="print" onload="this.media='all'">
+    {%- endif -%}
+  {%- else -%}
+    {{ 'video.css' | asset_url | stylesheet_tag }}
+
+    {%- if section.blocks.size > 0 -%}
+      {{ 'text-overlay.css' | asset_url | stylesheet_tag }}
+    {%- endif -%}
   {%- endif -%}
+
+  <script src="{{ 'video.js' | asset_url }}" defer="defer"></script>
 
   {%- liquid
     assign using_video_tag = false
@@ -30,47 +39,71 @@
     if section.settings.video_shopify != blank
       assign using_video_tag = true
     endif
+
+    if section.index == 1 or section.settings.prevent_animation
+      assign lazy_load_images = false
+    else
+      assign lazy_load_images = true
+    endif
+
+    if color_scheme == "white"
+      assign brightness = section.settings.transparent_content_color | color_brightness
+      assign alpha = section.settings.transparent_content_color | color_extract: 'alpha'
+      if brightness < 190 and alpha > 0
+        assign transparent_text_contrast = "255 255 255"
+        assign transparent_hover_color = section.settings.transparent_content_color | color_lighten: 10
+      else
+        assign transparent_text_contrast = "0 0 0"
+        assign transparent_hover_color = section.settings.transparent_content_color | color_darken: 10
+      endif
+    endif
   -%}
 
   {%- style -%}
-    {%- if section.blocks.size > 0 -%}
-      #{{ section.id }} .video-section::after {
-        content: '';
-        {%- if section.settings.video_height == 'full' -%}
-          padding-top: calc(var(--viewport-height, 100vh) - var(--header-end, 200px));
-        {%- elsif section.settings.video_height == 'landscape' -%}
-          padding-top: 56.25%;
-        {%- elsif section.settings.video_height == 'lg' -%}
-          padding-top: 60vh;
-        {%- elsif section.settings.video_height == 'md' -%}
-          padding-top: 45vh;
-        {%- else -%}
-          padding-top: 30vh;
-        {%- endif -%}
-      }
-
-      {%- if section.settings.video_height != 'full' and section.settings.video_height != 'landscape' -%}
-        @media(min-width: 768px){
-          #{{ section.id }} .video-section::after {
-          {%- if section.settings.video_height == 'lg' -%}
-            padding-top: 80vh;
-          {%- elsif section.settings.video_height == 'md' -%}
-            padding-top: 65vh;
-          {%- else -%}
-            padding-top: 50vh;
-          {%- endif -%}
-          }
-        }
-      {% endif %}
-
-      {%- if bg_color -%}
-        #{{ section.id }} .text-overlay { background: {{ bg_color }}; }
+    #{{ section.id }} .video-section::after {
+      content: '';
+      {%- if section.settings.video_height == 'full' -%}
+        padding-top: calc(var(--viewport-height, 100vh) - var(--header-end, 200px));
+      {%- elsif section.settings.video_height == 'landscape' -%}
+        padding-top: 56.25%;
+      {%- elsif section.settings.video_height == 'lg' -%}
+        padding-top: 60vh;
+      {%- elsif section.settings.video_height == 'md' -%}
+        padding-top: 45vh;
+      {%- else -%}
+        padding-top: 30vh;
       {%- endif -%}
+    }
+
+    {%- if section.settings.video_height != 'full' and section.settings.video_height != 'landscape' -%}
+      @media(min-width: 768px){
+        #{{ section.id }} .video-section::after {
+        {%- if section.settings.video_height == 'lg' -%}
+          padding-top: 80vh;
+        {%- elsif section.settings.video_height == 'md' -%}
+          padding-top: 65vh;
+        {%- else -%}
+          padding-top: 50vh;
+        {%- endif -%}
+        }
+      }
+    {% endif %}
+
+    {%- if bg_color -%}
+      #{{ section.id }} .text-overlay { background: {{ bg_color }}; }
     {%- endif -%}
 
     {%- if section.settings.tint_opacity > 0 -%}
       #{{ section.id }} .media::after {
         background-color: rgba({{ section.settings.tint_color.red }}, {{ section.settings.tint_color.green }}, {{ section.settings.tint_color.blue }}, {{ section.settings.tint_opacity | divided_by: 100.0 }});
+      }
+    {%- endif -%}
+
+    {%- if color_scheme == "white" -%}
+      #{{ section.id }} {
+        --color-scheme-white-text: {{ section.settings.transparent_content_color.red }} {{ section.settings.transparent_content_color.green }} {{ section.settings.transparent_content_color.blue }};
+        --color-scheme-white-hover: {{ transparent_hover_color.red }} {{ transparent_hover_color.green }} {{ transparent_hover_color.blue }};
+        --color-scheme-white-text-contrast: {{ transparent_text_contrast }};
       }
     {%- endif -%}
   {%- endstyle -%}
@@ -94,7 +127,7 @@
     <div class="video-section bg-video-section video-section--full-width relative flex mx-auto overflow-hidden {{ overlay_position | first }} {{ overlay_position | last }}">
       {%- if section.blocks.size > 0 -%}
         <div class="container md-down:p-xl flex md-down:center {{ overlay_position | first }} {{ overlay_position | last }}">
-          <div class="text-overlay {{ section.settings.overlay_text_align }}{% if section.settings.mob_center_text %} md-down:text-center{% endif %}{% if bg_color %} text-overlay--bg{% endif %}"{% if settings.animations_enabled != "disabled" %} data-cc-animate{% endif %}>
+          <div class="text-overlay {{ section.settings.overlay_text_align }}{% if section.settings.mob_center_text %} md-down:text-center{% endif %}{% if bg_color %} text-overlay--bg{% endif %}"{% if settings.animations_enabled != "disabled"and section.settings.prevent_animation == false %} data-cc-animate{% endif %}>
             {%- for block in section.blocks -%}
               {%- case block.type -%}
                 {%- when 'heading' -%}
@@ -132,10 +165,22 @@
         </div>
       {%- endif -%}
 
-      <div class="video-section__media block w-full{% if section.blocks.size > 0 %} vertical-center absolute top-0 left-0 h-full{% else %} relative{% endif %}">
-        <div class="video-section__bg-video pointer-events-none absolute top-0 left-0 w-full h-full no-js-hidden">
-          {{ video_component }}
-        </div>
+      <div class="video-section__media block w-full vertical-center absolute top-0 left-0 h-full">
+        {%- if section.settings.lazyload == false -%}
+          <div class="video-section__bg-video pointer-events-none absolute top-0 left-0 w-full h-full">
+            {{ video_component }}
+          </div>
+        {%- else -%}
+          <deferred-media class="video-section__bg-video block pointer-events-none absolute top-0 left-0 w-full h-full no-js-hidden">
+            <template>{{ video_component }}</template>
+          </deferred-media>
+
+          <noscript>
+            <div class="video-section__bg-video pointer-events-none absolute top-0 left-0 w-full h-full">
+              {{ video_component }}
+            </div>
+          </noscript>
+        {%- endif -%}
 
         <div class="media media--has-overlay absolute top-0 left-0 w-full h-full">
           {%- liquid
@@ -150,6 +195,7 @@
               src_width: 1680,
               src_placeholder: true,
               sizes: sizes,
+              lazy_load: lazy_load_images,
               class: class
             %}
           {%- else -%}
@@ -199,7 +245,7 @@
     {
       "type": "select",
       "id": "video_height",
-      "label": "Video size",
+      "label": "Minimum video size",
       "options": [
         {
           "value": "landscape",
@@ -251,7 +297,7 @@
     {
       "type": "select",
       "id": "overlay_position",
-      "label": "Overlay position",
+      "label": "Text position",
       "options": [
         {
           "value": "justify-start items-start",
@@ -309,7 +355,7 @@
       "options": [
         {
           "value": "white",
-          "label": "White"
+          "label": "Transparent background"
         },
         {
           "value": "default",
@@ -332,6 +378,13 @@
     },
     {
       "type": "color",
+      "id": "transparent_content_color",
+      "label": "Text color",
+      "info": "Only applies when the \"Transparent background\" color scheme is chosen.",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
       "id": "tint_color",
       "label": "Video tint color",
       "default": "#000000"
@@ -345,6 +398,24 @@
       "unit": "%",
       "label": "Video tint opacity",
       "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Advanced"
+    },
+    {
+      "type": "checkbox",
+      "id": "lazyload",
+      "label": "Lazy load the video",
+      "info": "This will load the video only when it's about to come into view. Turn this off if you'd rather the video had the best chance of auto-playing on older devices, or if this section is visible when the page loads.",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "prevent_animation",
+      "label": "Load the section without animation",
+      "info": "If this section is visible when the page loads, enabling this setting can reduce CLS and may improve site speed scores. [Read more](https://cleancanvas.co.uk/support/enterprise/performance-guide)",
+      "default": false
     }
   ],
   "blocks": [

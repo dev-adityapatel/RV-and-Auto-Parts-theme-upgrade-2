@@ -27,7 +27,9 @@
       "label": "Paginering",
       "next": "Volgende",
       "previous": "Vorige",
-      "position": "Pagina {{ current_page }} \/ {{ total_pages }}"
+      "position": "Pagina {{ current_page }} \/ {{ total_pages }}",
+      "position_results": "Laat {{ visible_results }} van {{ total_results }} zien",
+      "show_more": "Meer weergeven"
     },
     "search": {
       "title": "Zoeken",
@@ -38,8 +40,10 @@
       "products": "Producten",
       "collections": "Collecties",
       "pages": "Pagina’s",
+      "queries": "Suggesties",
       "articles": "Artikelen",
-      "view_all": "Alle zoekresultaten weergeven"
+      "view_all": "Alle zoekresultaten weergeven",
+      "all_product_types": "Alles"
     },
     "slider": {
       "next": "Volgende",
@@ -49,8 +53,9 @@
     "social": {
       "share_heading": "Delen",
       "share_on_facebook": "Deel op Facebook",
-      "share_on_twitter": "Tweet op Twitter",
-      "share_on_pinterest": "Pin op Pinterest"
+      "share_on_twitter": "Tweet op X",
+      "share_on_pinterest": "Pin op Pinterest",
+      "follow_shop": "{{ shop_name }} op {{ social_platform }}"
     },
     "meta": {
       "page": "Pagina {{ page }}",
@@ -83,6 +88,7 @@
       "added_to_cart": "Item toegevoegd aan uw winkelwagen.",
       "awaiting_sale": "Dit product kan nog niet worden gekocht.",
       "backorder": "is nabesteld en wordt verzonden zodra het weer op voorraad is.",
+      "barcode": "Streepjescode:",
       "choose_options": "Kies mogelijkheden",
       "description": "Beschrijving",
       "from": "Van",
@@ -138,6 +144,7 @@
       "value_reduction_up_to_html": "Tot {{ amount }} korting",
       "vendor": "Door",
       "view_details": "Details weergeven",
+      "weight": "Gewicht",
       "xr_button": "Bekijk in uw ruimte"
     },
     "filtering": {
@@ -168,6 +175,7 @@
       "low_stock": "Beperkte voorraad",
       "very_low_stock": "Zeer geringe voorraad",
       "only_x_left": "{{ quantity }} op voorraad",
+      "backordered": "Nabesteld",
       "available_count": {
         "one": "{{ count }} unit",
         "other": "{{ count }} units"
@@ -515,6 +523,14 @@
       "add_to_apple_wallet": "Aan Apple Wallet toevoegen",
       "shop_link": "Begin met winkelen",
       "print": "Afdrukken"
+    },
+    "recipient": {
+      "checkbox": "Ik wil dit als cadeau sturen",
+      "email_label_optional": "E-mailadres ontvanger",
+      "email_label_required": "E-mailadres ontvanger *",
+      "name_label": "Naam ontvanger",
+      "message_label": "Bericht",
+      "max_characters": "Maximaal {{ max_chars }} tekens"
     }
   },
   "onboarding": {
