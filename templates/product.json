@@ -1,0 +1,528 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-product",
+      "blocks": {
+        "vendor-sku": {
+          "type": "vendor-sku",
+          "settings": {
+            "show_vendor": true,
+            "show_sku": true
+          }
+        },
+        "title": {
+          "type": "title",
+          "settings": {}
+        },
+        "eb550ac0-01f6-4fda-bb14-04aa1d4c046c": {
+          "type": "richtext",
+          "settings": {
+            "text": "<p>MPN: {{ product.metafields[\"shopify--facts\"].mpn.value }}<\/p>"
+          }
+        },
+        "price": {
+          "type": "price",
+          "settings": {
+            "show_tax_and_shipping": true
+          }
+        },
+        "judgeme_preview_badge_product_page_ddbc2144": {
+          "type": "shopify:\/\/apps\/judge-me-reviews\/blocks\/preview_badge\/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
+          "settings": {}
+        },
+        "divider-0": {
+          "type": "divider",
+          "settings": {
+            "show_line": true,
+            "spacing": "mt-8 mb-8"
+          }
+        },
+        "variant-picker": {
+          "type": "variant-picker",
+          "settings": {
+            "selector_style": "buttons",
+            "enable_dynamic_availability": true,
+            "show_backorder_text": true,
+            "enable_size_chart": false,
+            "size_chart_variant": "Size",
+            "size_chart_page": ""
+          }
+        },
+        "59f480af-4038-4e9b-8eb4-2011c55160ef": {
+          "type": "inventory-status",
+          "settings": {
+            "show_indicator_bar": true,
+            "show_urgency_message": true,
+            "text_very_low": "<p>- Almost gone!<\/p>",
+            "text_low": "<p>- Hurry while stocks last!<\/p>",
+            "text_normal": "",
+            "text_no_stock": "<p>- Out Of Stock Call for Details<\/p>"
+          }
+        },
+        "divider-1": {
+          "type": "divider",
+          "settings": {
+            "show_line": true,
+            "spacing": "mt-8 mb-8"
+          }
+        },
+        "buy-buttons": {
+          "type": "buy-buttons",
+          "settings": {
+            "show_qty_selector": true,
+            "enable_dynamic_checkout": true,
+            "show_pickup_availability": true
+          }
+        },
+        "message-1": {
+          "type": "message",
+          "disabled": true,
+          "settings": {
+            "icon": "clock",
+            "title": "<p><strong>Popular right now<br\/><\/strong>Lots of people have looked at this recently<\/p>",
+            "close": "once",
+            "show_over_media": true,
+            "visibility_duration": 4,
+            "bg_color": "#e4edfa",
+            "text_color": "#1a66d2"
+          }
+        },
+        "ea31e1e0-ad84-4e75-b509-2cb512754d0e": {
+          "type": "divider",
+          "settings": {
+            "show_line": true,
+            "spacing": "mt-8 mb-8"
+          }
+        },
+        "36d70666-e8d9-4937-873c-c939d955b404": {
+          "type": "shopify:\/\/apps\/convermax-year-make-model\/blocks\/verify-fitment\/874383ce-1b49-4436-9ea6-3697a3a5a3d5",
+          "settings": {
+            "wrapper_classes": ""
+          }
+        },
+        "message-2": {
+          "type": "message",
+          "disabled": true,
+          "settings": {
+            "icon": "price_tag",
+            "title": "<p><strong>Selling fast!<br\/><\/strong>Grab yours while you can<\/p>",
+            "close": "once",
+            "show_over_media": true,
+            "visibility_duration": 5,
+            "bg_color": "#e4edfa",
+            "text_color": "#1a66d2"
+          }
+        },
+        "collapsible-content-1": {
+          "type": "collapsible-content",
+          "settings": {
+            "heading": "Care information",
+            "icon": "heart",
+            "text": "<p>Check with Manufacturers Guides<\/p>",
+            "page": "",
+            "open": false
+          }
+        },
+        "collapsible-content-2": {
+          "type": "collapsible-content",
+          "settings": {
+            "heading": "Delivery and Shipping",
+            "icon": "truck",
+            "text": "<p>At our website, we pride ourselves on swift delivery and shipping. Our standard processing time is by 12 PM Pacific Standard Time, ensuring most orders ship out on the same day when processed before noon. Plus, enjoy the added benefit of free ground shipping on all orders. For those who need their items even faster, we offer expedited shipping options, and you can also opt for convenient in-store pickup.<\/p>",
+            "page": "",
+            "open": false
+          }
+        },
+        "share": {
+          "type": "share",
+          "settings": {}
+        },
+        "message-3": {
+          "type": "message",
+          "disabled": true,
+          "settings": {
+            "icon": "chat_bubble",
+            "title": "<p>Please reach out if you need help!<\/p>",
+            "close": "once",
+            "show_over_media": false,
+            "visibility_duration": 7,
+            "bg_color": "#e4edfa",
+            "text_color": "#1a66d2"
+          }
+        }
+      },
+      "block_order": [
+        "vendor-sku",
+        "title",
+        "eb550ac0-01f6-4fda-bb14-04aa1d4c046c",
+        "price",
+        "judgeme_preview_badge_product_page_ddbc2144",
+        "divider-0",
+        "variant-picker",
+        "59f480af-4038-4e9b-8eb4-2011c55160ef",
+        "divider-1",
+        "buy-buttons",
+        "message-1",
+        "ea31e1e0-ad84-4e75-b509-2cb512754d0e",
+        "36d70666-e8d9-4937-873c-c939d955b404",
+        "message-2",
+        "collapsible-content-1",
+        "collapsible-content-2",
+        "share",
+        "message-3"
+      ],
+      "settings": {
+        "stick_on_scroll": true,
+        "sticky_atc_panel": true,
+        "media_layout": "slider",
+        "media_size": "default",
+        "media_ratio": "1",
+        "media_crop": "none",
+        "hover_zoom": "medium",
+        "enable_video_looping": false,
+        "stacked_scroll": "always",
+        "underline_active": true,
+        "media_thumbs": "always",
+        "thumb_ratio": "1",
+        "thumb_crop": "none",
+        "media_arrows": "desktop",
+        "show_slide_count": true,
+        "border_color": "#eeeeee",
+        "bg_color": "#f4f4f4",
+        "enable_media_grouping": false,
+        "media_grouping_option": "Color,Colour,Couleur,Farbe"
+      }
+    },
+    "details": {
+      "type": "product-details",
+      "blocks": {
+        "highlight-text": {
+          "type": "highlight-text",
+          "settings": {
+            "title": "{{ product.vendor }}",
+            "text": "<p>Number one Selling Products<\/p>{{ product.metafields[\"shopify--discovery--product_search_boost\"].queries | metafield_tag }}"
+          }
+        },
+        "tabs": {
+          "type": "tabs",
+          "settings": {
+            "style": "tabs",
+            "show_description": true,
+            "show_specification": false,
+            "show_reviews": false,
+            "spec_metafields": "",
+            "spec_right_align": false,
+            "spec_show_empty_metafields": false,
+            "spec_empty_field_text": "-",
+            "tab_1_title": "Specifications",
+            "tab_1_text": "",
+            "tab_1_page": "",
+            "tab_2_title": "",
+            "tab_2_text": "",
+            "tab_2_page": "",
+            "tab_3_title": "",
+            "tab_3_text": "",
+            "tab_3_page": ""
+          }
+        },
+        "088c09df-600a-4dba-9291-41db8e66ee99": {
+          "type": "shopify:\/\/apps\/convermax-year-make-model\/blocks\/related-products\/874383ce-1b49-4436-9ea6-3697a3a5a3d5",
+          "settings": {
+            "wrapper_classes": ""
+          }
+        },
+        "89b21d2b-e2c2-4f6f-ae7b-51e1502bd590": {
+          "type": "shopify:\/\/apps\/convermax-year-make-model\/blocks\/fitment-table\/874383ce-1b49-4436-9ea6-3697a3a5a3d5",
+          "disabled": true,
+          "settings": {
+            "wrapper_classes": ""
+          }
+        },
+        "payment-methods": {
+          "type": "payment-methods",
+          "settings": {
+            "title": "Payment & Security",
+            "title1": "Payment methods",
+            "show_payment_icons": true,
+            "text1": "<p>Your payment information is processed securely. We do not store credit card details nor have access to your credit card information.<\/p>",
+            "title2": "",
+            "text2": ""
+          }
+        }
+      },
+      "block_order": [
+        "highlight-text",
+        "tabs",
+        "088c09df-600a-4dba-9291-41db8e66ee99",
+        "89b21d2b-e2c2-4f6f-ae7b-51e1502bd590",
+        "payment-methods"
+      ],
+      "settings": {}
+    },
+    "product-comparison-grid": {
+      "type": "product-comparison-grid",
+      "blocks": {
+        "comparison-product-1": {
+          "type": "product",
+          "settings": {
+            "show_image": true,
+            "show_title": true,
+            "show_button": true
+          }
+        },
+        "comparison-vendor-2": {
+          "type": "vendor",
+          "settings": {}
+        },
+        "comparison-price-3": {
+          "type": "price",
+          "settings": {}
+        },
+        "comparison-description-4": {
+          "type": "description",
+          "settings": {
+            "truncate_description": true,
+            "words_to_show": 20
+          }
+        }
+      },
+      "block_order": [
+        "comparison-product-1",
+        "comparison-vendor-2",
+        "comparison-price-3",
+        "comparison-description-4"
+      ],
+      "disabled": true,
+      "settings": {
+        "heading": "Comparison Grid from {{ product.vendor }}",
+        "text": "<p>Select Related Products Below to see which Product fits best.<\/p>",
+        "heading_align": "text-center",
+        "view_more_label": "{{ product.metafields[\"shopify--discovery--product_recommendation\"].related_products_display.value }}{{ product.metafields[\"shopify--discovery--product_search_boost\"].queries | metafield_text }}",
+        "view_more_link": "shopify:\/\/collections\/all",
+        "product_list": "{{ product.metafields[\"shopify--discovery--product_recommendation\"].related_products.value }}",
+        "empty_field_text": "{{ product.title }}",
+        "image_ratio": "shortest",
+        "image_crop": "center",
+        "num_rows": 4,
+        "color_scheme": "1",
+        "highlight_row": true
+      }
+    },
+    "judgeme_section_review_widget_b990": {
+      "type": "apps",
+      "blocks": {
+        "judgeme_review_widget_d03bb14b": {
+          "type": "shopify:\/\/apps\/judge-me-reviews\/blocks\/review_widget\/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
+          "settings": {}
+        }
+      },
+      "block_order": [
+        "judgeme_review_widget_d03bb14b"
+      ],
+      "settings": {
+        "full_width": false
+      }
+    },
+    "product-features": {
+      "type": "product-features",
+      "blocks": {
+        "product-features-feature-0": {
+          "type": "feature",
+          "settings": {
+            "heading": "Feature name",
+            "text": "<p>Add some text describing the product feature.<\/p>",
+            "content_align": "text-start",
+            "hotspot_x": 28,
+            "hotspot_y": 38
+          }
+        },
+        "product-features-feature-1": {
+          "type": "feature",
+          "settings": {
+            "heading": "Feature name",
+            "text": "<p>Add some text describing the product feature.<\/p>",
+            "content_align": "text-start",
+            "hotspot_x": 60,
+            "hotspot_y": 29
+          }
+        },
+        "product-features-feature-2": {
+          "type": "feature",
+          "settings": {
+            "heading": "Feature name",
+            "text": "<p>Add some text describing the product feature.<\/p>",
+            "content_align": "text-start",
+            "hotspot_x": 73,
+            "hotspot_y": 54
+          }
+        },
+        "product-features-feature-3": {
+          "type": "feature",
+          "settings": {
+            "heading": "Feature name",
+            "text": "<p>Add some text describing the product feature.<\/p>",
+            "content_align": "text-start",
+            "hotspot_x": 50,
+            "hotspot_y": 66
+          }
+        }
+      },
+      "block_order": [
+        "product-features-feature-0",
+        "product-features-feature-1",
+        "product-features-feature-2",
+        "product-features-feature-3"
+      ],
+      "disabled": true,
+      "settings": {
+        "product": "{{ product }}",
+        "show_content": true,
+        "layout": "text_first",
+        "text_align": "text-center",
+        "mob_center_text": false,
+        "heading_size": "h1",
+        "enlarge_text": false,
+        "title": "Product features",
+        "description": "<p>Use this section to highlight specific product features to your customers.<\/p>",
+        "button_label": "",
+        "button_link": "",
+        "hotspot_color": "#070707",
+        "color_scheme": "none",
+        "button_style": "btn btn--primary"
+      }
+    },
+    "collection-list": {
+      "type": "collection-list",
+      "blocks": {
+        "collection-list-collection-1": {
+          "type": "collection",
+          "settings": {
+            "collection": "rv-parts-shop"
+          }
+        },
+        "collection-list-collection-2": {
+          "type": "collection",
+          "settings": {
+            "collection": "plumbing-freshwater-waste-sewer"
+          }
+        },
+        "collection-list-collection-6": {
+          "type": "collection",
+          "settings": {
+            "collection": "automotive-truck-accessories-parts"
+          }
+        },
+        "collection-list-collection-3": {
+          "type": "collection",
+          "settings": {
+            "collection": "towing-hitches"
+          }
+        },
+        "collection-list-collection-4": {
+          "type": "collection",
+          "settings": {
+            "collection": "maintenence"
+          }
+        },
+        "collection-list-collection-5": {
+          "type": "collection",
+          "disabled": true,
+          "settings": {
+            "collection": "outdoor-living"
+          }
+        }
+      },
+      "block_order": [
+        "collection-list-collection-1",
+        "collection-list-collection-2",
+        "collection-list-collection-6",
+        "collection-list-collection-3",
+        "collection-list-collection-4",
+        "collection-list-collection-5"
+      ],
+      "settings": {
+        "title": "Our Collections",
+        "heading_align": "text-start",
+        "button_label": "",
+        "button_link": "shopify:\/\/collections\/covers",
+        "layout": "carousel",
+        "card_size": "medium",
+        "use_product_image": true,
+        "circle_image": true
+      }
+    },
+    "image-banner": {
+      "type": "image-banner",
+      "blocks": {
+        "image-banner-heading": {
+          "type": "heading",
+          "settings": {
+            "heading": "Customer Service",
+            "heading_size": "h1",
+            "heading_h1": false
+          }
+        },
+        "image-banner-text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>If you have any questions, we are here to help you!<\/p><p>PH: 760-651-4005<\/p>",
+            "enlarge_text": true
+          }
+        },
+        "image-banner-button": {
+          "type": "button",
+          "settings": {
+            "button_1_label": "",
+            "button_1_link": "",
+            "button_1_style": "btn btn--primary",
+            "button_2_label": "",
+            "button_2_link": "",
+            "button_2_style": "btn btn--primary"
+          }
+        }
+      },
+      "block_order": [
+        "image-banner-heading",
+        "image-banner-text",
+        "image-banner-button"
+      ],
+      "disabled": true,
+      "settings": {
+        "image_desktop": "shopify:\/\/shop_images\/Colorful_Blue_and_Purple_Animated_YouTube_Outro.jpg",
+        "url": "",
+        "height_mode": "fixed",
+        "fixed_height_desktop": 640,
+        "fixed_height_mobile": 480,
+        "overlay_position": "justify-center items-center",
+        "overlay_text_align": "text-center",
+        "mob_center_text": false,
+        "mobile_stacked": false,
+        "color_scheme": "white",
+        "full_width": false,
+        "tint_color": "#000000",
+        "tint_opacity": 40,
+        "prevent_animation": false
+      }
+    },
+    "recommendations": {
+      "type": "product-recommendations",
+      "settings": {
+        "heading": "You may also like",
+        "heading_align": "text-start",
+        "layout": "carousel",
+        "card_size": "small",
+        "products_to_show": 6
+      }
+    }
+  },
+  "order": [
+    "main",
+    "details",
+    "product-comparison-grid",
+    "judgeme_section_review_widget_b990",
+    "product-features",
+    "collection-list",
+    "image-banner",
+    "recommendations"
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-list-collections",
+      "disabled": true,
+      "settings": {
+        "title": "Collections",
+        "description": "",
+        "text_align": "text-start",
+        "display_type": "all",
+        "selected_collections": [],
+        "collections_per_page": 16,
+        "card_size": "small",
+        "use_product_image": false
+      }
+    },
+    "16909677937fe0b53b": {
+      "type": "apps",
+      "blocks": {
+        "32484275-b342-43bc-a9d2-a7f3eb80b549": {
+          "type": "shopify:\/\/apps\/convermax-year-make-model\/blocks\/collection-list-page\/874383ce-1b49-4436-9ea6-3697a3a5a3d5",
+          "settings": {
+            "wrapper_classes": ""
+          }
+        }
+      },
+      "block_order": [
+        "32484275-b342-43bc-a9d2-a7f3eb80b549"
+      ],
+      "settings": {
+        "full_width": false
+      }
+    }
+  },
+  "order": [
+    "main",
+    "16909677937fe0b53b"
+  ]
+}

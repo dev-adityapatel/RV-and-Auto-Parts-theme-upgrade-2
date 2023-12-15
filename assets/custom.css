@@ -1,0 +1,138 @@
+div.header__icons{
+  margin-bottom: 0;
+}
+
+#cm-collection-list a.cm_vehicle-categories_link{
+  background: rgba(var(--text-color)/.08);
+}
+
+#cm-collection-list .cm_vehicle-categories_category-image{
+  background-color: transparent;
+}
+
+#cm-collection-list .cm_vehicle-categories_category-title{
+  text-align: left;
+}
+
+#cm-collection-list  .cm_vehicle-categories_hitcount{
+  display: none;  
+}
+
+#cm-collection-list .cm_vehicle-categories_category-title-container {
+  width:100%;  
+}
+
+.cm_vehicle-categories__alphabetical-grid .cm_vehicle-categories_category-image-container h3{
+  font-size: 16px;
+  margin: 0;
+}
+
+.cm_search-box-root input.cm_searchInput,
+.cm_search-box-root button.cm_search-box_submit{
+  border-radius: var(--input-lg-border-radius, var(--input-border-radius));
+  background-color: rgba(var(--text-color)/.08)!important;
+}
+
+.cm_search-box-root .cm_search-box_submit svg.icon{
+  fill: #000;
+}
+
+.cm_search-box-root .cm_searchInput {
+    border: none!important;
+}
+
+#cm-mobile-search-box{
+  display: none;
+}
+
+@media(max-width: 768px){
+  #cm-search-box{
+    display: none;
+  }
+
+  #cm-mobile-search-box{
+    display: flex;
+    margin-top:0;
+  }
+}
+
+.cm_search-box-root .cm_search-box_form-container{
+    flex-direction: row-reverse;
+}
+
+div.cm_search-box-root .cm_search-box_form-container span.cm_search-box_clear-container{
+    right: 20px;
+}
+
+.cm_sort select{
+  background: #fff url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='60'%3E%3Cpath fill='none' d='M0 0h30v60H0zm.5 60V0'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' fill='%23333' d='m15.676 33.037 5.102-5.103-.707-1.086-4.49 4.492-4.49-4.492-.702 1.086 5.102 5.103.075.115.02-.02.02.02z'/%3E%3C/svg%3E") no-repeat 100% 48%;
+}
+
+.cm_product-item{
+    font-family: var(--body-font-family);
+    background: #f5f5f5;
+    padding: calc(4 * var(--space-unit));
+}
+
+@media(max-width: 425px){
+ .cm_product-item{
+   padding: 8px;
+ }
+}
+
+.cm_product-item .cm_product-item__details a.cm_product-item__vendor{
+    opacity: .7;
+    color: rgba(var(--text-color) / .6);
+    font-size: 14px;
+}
+
+.cm_product-item .cm_product-item__details a.cm_product-item__title{
+    font-weight: 700;
+    font-size: 16px;
+    color: rgb(var(--card-text-color));
+}
+
+.cm_product-item .cm_product-item__details .cm_product-item__sku-container{
+    display: none;
+}
+
+.cm_product-item .cm_product-item__price{
+    font-size: 19px;
+}
+
+@media(max-width: 1024px){
+  .cm_product-item .cm_product-item__price{
+    font-size: 16px;
+  }
+}
+
+.cm_product-item  .cm_product-item__buttons{
+    display: none;
+}
+
+.cm_garage .garage-label{
+  display: none;
+}
+
+.cm_garage div.cm_garageDropdown{
+  right: -2px;
+}
+
+.cm_vehicle-widget_button-container .cm_vehicle-widget_button{
+  min-width: 90px;  
+}
+
+.cm_FacetPanel:not(.dialog-body) .facetbody{
+  padding-left: 0;  
+}
+
+@media(max-width: 400px){
+  .cm_garage div.cm_garageDropdown::after,
+  .cm_garage div.cm_garageDropdown::before{
+    display:none;
+  }
+  
+  .cm_garage div.cm_garageDropdown{
+    right: -75px;
+  }
+}
