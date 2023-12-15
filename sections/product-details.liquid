@@ -1,7 +1,7 @@
 {%- assign found_highlight_text = false -%}
 {%- if section.blocks.size > 0 -%}
   {%- for block in section.blocks -%}
-    {%- if block.settings.show_reviews and block.type == 'tabs' -%}
+    {%- if block.settings.show_reviews and block.settings.custom_reviews == blank and block.type == 'tabs' -%}
       <script>
         document.addEventListener('DOMContentLoaded', () => {
           if (document.getElementById('shopify-product-reviews')) {
@@ -57,7 +57,7 @@
                 {%- liquid
                   assign parts = key_value | split: ':'
                   assign label = parts.first | strip | replace: '"', ''
-                  assign metafield_key = parts.last | strip | downcase
+                  assign metafield_key = parts.last | strip
                   assign metafield_key_parts = metafield_key | split: "."
                   assign metafield_namespace_index = metafield_key_parts | size | minus: 2
                   assign metafield_key = metafield_key_parts | last
@@ -72,13 +72,13 @@
                         if forloop.last == false
                           assign comma = ", "
                         endif
-                        render 'render-metafield', metafield_type: metafield_type, metafield_value: item, comma: comma
+                        render 'render-metafield', metafield: metafield, metafield_type: metafield_type, metafield_value: item, comma: comma
                         if forloop.last == false and metafield_type == "file_reference"
                           echo "<div class='mt-2'></div>"
                         endif
                       endfor
                     elsif metafield.value
-                      render 'render-metafield', metafield_type: metafield.type, metafield_value: metafield.value
+                      render 'render-metafield', metafield: metafield, metafield_type: metafield.type, metafield_value: metafield.value
                     endif
                   endcapture
                 -%}
@@ -102,6 +102,8 @@
             {%- endcapture -%}
           {%- endif -%}
 
+          {%- assign first_tab_rendered = false -%}
+
           {%- if tabs.size > 0 -%}
             <div class="product-details__block" {{ block.shopify_attributes }}>
               {%- for i in tab_indices -%}
@@ -111,12 +113,13 @@
                   if i == '0'
                     assign title = 'products.product.description' | t
                   elsif i == '4' and specification == blank
+                    assign title = 'products.product.specification' | t
                     assign prevent_tab_render = true
                   elsif i == '4'
                     assign title = 'products.product.specification' | t
                   elsif i == '5' and block.settings.show_reviews
-                    assign reviews_count = product.metafields.spr.reviews | split: '"reviewCount": "' | last | split: '",' | first | plus : 0
-                    assign title = 'products.product.reviews' | t | append: ' (' | append: reviews_count | append: ')'
+                    assign rating_count = product.metafields.reviews.rating_count | plus: 0
+                    assign title = 'products.product.reviews' | t | append: ' (' | append: rating_count | append: ')'
                   else
                     assign title_id = 'tab_' | append: i | append: '_title'
                     assign text_id = 'tab_' | append: i | append: '_text'
@@ -127,7 +130,7 @@
 
                 {%- if block.settings.style == 'collapsible' and prevent_tab_render == false -%}
                   <details-disclosure>
-                    <details class="disclosure disclosure--row">
+                    <details class="disclosure disclosure--row"{% if first_tab_rendered == false and block.settings.open_first %} open{% endif %}>
                       <summary>
                         <div class="flex justify-between items-center">
                           <h2 class="disclosure__title h5 mb-0">{{ title }}</h2>
@@ -149,9 +152,15 @@
                               {{ specification }}
                             </ul>
                           {%- elsif i == "5" and block.settings.show_reviews -%}
-                            <div class="spr-reviews" id="shopify-product-reviews" data-id="{{ product.id }}">
-                              {{ product.metafields.spr.reviews }}
-                            </div>
+                            {%- if block.settings.custom_reviews == blank -%}
+                              <div class="spr-reviews" id="shopify-product-reviews" data-id="{{ product.id }}">
+                                {{ product.metafields.spr.reviews }}
+                              </div>
+                            {%- else -%}
+                              <div class="custom-reviews">
+                                {{ block.settings.custom_reviews }}
+                              </div>
+                            {%- endif -%}
                           {%- else -%}
                             {{ block.settings[text_id] }}
                             {{ block.settings[page_id].content }}
@@ -160,6 +169,7 @@
                       </div>
                     </details>
                   </details-disclosure>
+                  {%- assign first_tab_rendered = true -%}
                 {%- else -%}
                   {%- capture tab_btns -%}
                     {{ tab_btns }}
@@ -184,18 +194,28 @@
                     -%}
                     <div id="panel-{{ i }}" role="tabpanel" tabindex="0" aria-labelledby="tab-{{ i }}"{% unless forloop.first %} hidden{% endunless %}>
                       {%- if forloop.first and block.settings.show_description -%}
-                        {{ product.description }}
+                        <div class="rte product-description">
+                          {{ product.description }}
+                        </div>
                       {%- elsif i == "4" and specification != blank -%}
                         <ul class="product-spec">
                           {{ specification }}
                         </ul>
                       {%- elsif i == "5" and block.settings.show_reviews -%}
-                        <div class="spr-reviews" id="shopify-product-reviews" data-id="{{ product.id }}">
-                          {{ product.metafields.spr.reviews }}
-                        </div>
+                        {%- if block.settings.custom_reviews == blank -%}
+                          <div class="spr-reviews" id="shopify-product-reviews" data-id="{{ product.id }}">
+                            {{ product.metafields.spr.reviews }}
+                          </div>
+                        {%- else -%}
+                          <div class="custom-reviews">
+                            {{ block.settings.custom_reviews }}
+                          </div>
+                        {%- endif -%}
                       {%- else -%}
-                        {{ block.settings[text_id] }}
-                        {{ block.settings[page_id].content }}
+                        <div class="rte">
+                          {{ block.settings[text_id] }}
+                          {{ block.settings[page_id].content }}
+                        </div>
                       {%- endif -%}
                     </div>
                   {%- endfor -%}
@@ -333,7 +353,7 @@
           "default": true
         },
         {
-          "type": "radio",
+          "type": "select",
           "id": "spacing",
           "label": "Spacing",
           "options": [
@@ -385,22 +405,35 @@
         },
         {
           "type": "checkbox",
+          "id": "open_first",
+          "label": "Open first collapsible tab by default",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Description tab"
+        },
+        {
+          "type": "checkbox",
           "id": "show_description",
           "label": "Show description tab",
           "default": true
         },
         {
-          "type": "checkbox",
-          "id": "show_specification",
-          "label": "Show specifications tab",
-          "default": true
+          "type": "header",
+          "content": "Reviews tab"
         },
         {
           "type": "checkbox",
           "id": "show_reviews",
           "label": "Show reviews tab",
-          "info": "Requires the [Shopify Product Reviews app](https://apps.shopify.com/product-reviews?ref=cleancanvas)",
           "default": false
+        },
+        {
+          "type": "liquid",
+          "id": "custom_reviews",
+          "label": "Custom reviews app code",
+          "info": "Used to show reviews in a tab if Shopify Product Reviews app is not installed."
         },
         {
           "type": "header",
@@ -409,6 +442,12 @@
         {
           "type": "paragraph",
           "content": "Include a list of labels and product metafield keys below, separated by a colon, one per line. E.g. Trim color:custom.trim_color. [Read more](https://cleancanvas.co.uk/support/enterprise/templates/product-page)"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_specification",
+          "label": "Show specifications tab",
+          "default": false
         },
         {
           "type": "textarea",

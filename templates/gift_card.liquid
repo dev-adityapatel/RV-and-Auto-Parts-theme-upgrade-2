@@ -2,8 +2,9 @@
   layout none
   assign rtl = false
   assign rtl_iso_codes = 'ar,arc,dv,fa,ha,he,khw,ks,ku,ps,ur,yi' | split: ','
+  assign current_lang = localization.language.iso_code | split: '-' | first
 
-  if rtl_iso_codes contains localization.language.iso_code
+  if rtl_iso_codes contains current_lang
     assign rtl = true
   endif
 -%}
@@ -16,8 +17,6 @@
 
   {%- assign formatted_initial_value = gift_card.initial_value | money_without_trailing_zeros | strip_html %}
   <title>{{ 'gift_cards.issued.title' | t: value: formatted_initial_value, shop: shop.name }}</title>
-
-  <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
 
   {%- unless settings.body_font.system? -%}
     <link rel="preload" href="{{ settings.body_font | font_url }}" as="font" type="font/woff2" crossorigin>

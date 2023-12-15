@@ -1,5 +1,10 @@
 {%- comment -%}theme-check-disable LiquidTag{%- endcomment -%}
-<link rel="stylesheet" href="{{ 'product-comparison-grid.css' | asset_url }}">
+
+{%- if section.index > 2 -%}
+  <link rel="stylesheet" href="{{ 'product-comparison-grid.css' | asset_url }}" media="print" onload="this.media='all'">
+{%- else -%}
+  {{ 'product-comparison-grid.css' | asset_url | stylesheet_tag }}
+{%- endif -%}
 
 {%- liquid
   assign head_block = section.blocks | where: "type", "product" | first
@@ -115,6 +120,7 @@
                                       widths: '320, 460, 600, 700, 800, 900, 1200',
                                       src_width: 460,
                                       sizes: sizes,
+                                      section_index: section.index,
                                       class: class
                                     %}
                                   </div>
@@ -242,7 +248,7 @@
                               <td>
                                 <div class="price">
                                   <div class="price__default">
-                                    <strong class="price__current">{{ 99999 | money }}</strong>
+                                    <strong class="price__current">{%- render 'price-as-money', price: 9999, show_money_with_currency: false -%}</strong>
                                   </div>
                                 </div>
                               </td>
@@ -297,25 +303,9 @@
                               {%- if is_swatch -%}
                                 {%- capture swatches -%}
                                   {%- for option in product.options_with_values -%}
-                                    {%- if settings.swatch_option_name contains option.name -%}
-                                      {%- if settings.card_colors_style == 'swatches' -%}
-                                        <div class="card__swatches mb-3 flex items-center relative pointer-events-none">
-                                          {%- capture option_id %}{{ section.id }}-{{ product.id }}-{{ option.name | handle }}{% endcapture -%}
-                                          {%- liquid
-                                            assign variant_key = 'option' | append: option.position
-                                            assign swatch_limit = 99
-                                          -%}
-
-                                          {%- for value in option.values limit: swatch_limit -%}
-                                            {%- assign variant_value = product.variants | where: variant_key, value | first -%}
-                                            <input type="radio" class="opt-btn visually-hidden js-option" name="{{ option_id }}-option" id="{{ option_id }}-opt-{{ forloop.index0 }}" value="{{ value | escape }}" data-variant-id="{{ variant_value.id }}"{% if variant_value.featured_media %} data-media-id="{{ variant_value.featured_media.id }}"{% endif %}>
-                                            <label class="opt-label opt-label--swatch relative" title="{{ value | replace: '"', '`' }}" data-swatch="{{ value | replace: '"', '' | downcase }}" for="{{ option_id }}-opt-{{ forloop.index0 }}"><span class="visually-hidden">{{ value }}</span></label>
-                                          {%- endfor -%}
-
-                                          {%- if option.values.size > swatch_limit -%}
-                                            <span class="text-end text-sm">+{{ option.values.size | minus: swatch_limit }}</span>
-                                          {%- endif -%}
-                                        </div>
+                                    {%- if settings.swatch_option_name and settings.card_colors_style != 'none' and settings.swatch_option_name contains option.name -%}
+                                      {%- if settings.card_colors_style == 'swatches' or settings.card_colors_style == 'variant-images' -%}
+                                        {%- render 'compare-swatches', product: product, option: option, section: section -%}
                                       {%- else -%}
                                         {%- if option.values.size == 1 -%}
                                           <p class="mt-2">{{ 'sections.collection.colors_single' | t }}</p>
@@ -405,6 +395,22 @@
                           {%- endfor -%}
                         </tr>
 
+                      {%- when 'weight' -%}
+                        <tr class="lg:hidden {{ tr_class }}">
+                          <th class="product-comparison-grid__th--top relative" colspan="{{ num_columns }}">
+                            <span class="product-comparison-grid__sticky">{{ 'products.product.weight' | t }}</span>
+                          </th>
+                        </tr>
+
+                        <tr {% if tr_class %}class="{{ tr_class }}" {% endif %}{{ block.shopify_attributes }}>
+                          <th class="product-comparison-grid__th--left">{{ 'products.product.weight' | t }}</th>
+                          {%- if section.settings.product_list != blank -%}
+                            {%- for product in section.settings.product_list -%}
+                              <td>{%- render 'product-weight', product: product, empty_text: section.settings.empty_field_text -%}</td>
+                            {%- endfor -%}
+                          {%- endif -%}
+                        </tr>
+
                       {%- when 'text' -%}
                         <tr class="lg:hidden {{ tr_class }}">
                           <th class="product-comparison-grid__th--top relative" colspan="{{ num_columns }}">
@@ -446,13 +452,13 @@
                                       if forloop.last == false
                                         assign comma = ", "
                                       endif
-                                      render 'render-metafield', metafield_type: metafield_type, metafield_value: item, comma: comma
+                                      render 'render-metafield', metafield: metafield, metafield_type: metafield_type, metafield_value: item, comma: comma
                                       if forloop.last == false and metafield_type == "file_reference"
                                         echo "<div class='mt-2'></div>"
                                       endif
                                     endfor
                                   elsif metafield.value
-                                    render 'render-metafield', metafield_type: metafield.type, metafield_value: metafield.value
+                                    render 'render-metafield', metafield: metafield, metafield_type: metafield.type, metafield_value: metafield.value
                                   endif
                                 endcapture
                               -%}
@@ -748,6 +754,17 @@
       "type": "rating",
       "name": "Rating",
       "limit": 1
+    },
+    {
+      "type": "weight",
+      "name": "Weight",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Shows only if all variants have the same weight."
+        }
+      ]
     },
     {
       "type": "text",

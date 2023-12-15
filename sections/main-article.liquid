@@ -31,6 +31,7 @@
             widths: '800, 1200, 1600',
             src_width: 1600,
             src_placeholder: true,
+            lazy_load: false,
             sizes: sizes
           %}
         </div>
@@ -65,7 +66,7 @@
         <script src="{{ 'article-pagination.js' | asset_url }}" defer="defer"></script>
       {%- endif -%}
 
-      <article-pagination class="article__pagination flex justify-between font-bold border-top{% if section.settings.pagination == "standard" %} border-bottom reading-width article-width mx-auto mt-12 lg:blog-mt-16{% else %} fixed bottom-0 left-0 w-full bg-theme-bg pl-4 pr-4{% endif %}">
+      <article-pagination class="article__pagination pagination__bar flex justify-between font-bold border-top{% if section.settings.pagination == "standard" %} border-bottom reading-width article-width mx-auto mt-12 lg:blog-mt-16{% else %} fixed bottom-0 left-0 w-full pl-4 pr-4{% endif %}">
         <a class="pt-4 pb-4 shrink-0 js-pagination-link has-ltr-icon"{% if blog.previous_article %} href="{{ blog.previous_article }}" title="{{ blog.previous_article.title | escape }}"{% else %} role="link" aria-disabled="true"{% endif %}>
           {% render 'icon-chevron-left' %}<span{% if section.settings.pagination == "bar-reading" %} class="hidden md:inline"{% endif %}>{{ 'blogs.article.previous_post' | t }}</span>
         </a>
@@ -170,7 +171,7 @@
     {
       "type": "checkbox",
       "id": "show_share_buttons",
-      "label": "Show social share buttons",
+      "label": "Show social share links",
       "default": true
     },
     {

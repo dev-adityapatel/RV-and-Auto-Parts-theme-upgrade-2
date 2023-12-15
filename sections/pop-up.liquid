@@ -1,7 +1,12 @@
 {%- if section.blocks.size > 0 -%}
   {%- unless section.settings.show_to_guests_only and customer and request.design_mode == false -%}
-    <link rel="stylesheet" href="{{ 'popup.css' | asset_url }}">
-    <link rel="stylesheet" href="{{ 'modal.css' | asset_url }}">
+    {%- if section.settings.trigger == "delay" and section.settings.delay < 2 -%}
+      {{ 'popup.css' | asset_url | stylesheet_tag }}
+      {{ 'modal.css' | asset_url | stylesheet_tag }}
+    {%- else -%}
+      <link rel="stylesheet" href="{{ 'popup.css' | asset_url }}" media="print" onload="this.media='all'">
+      <link rel="stylesheet" href="{{ 'modal.css' | asset_url }}" media="print" onload="this.media='all'">
+    {%- endif -%}
     <script src="{{ 'pop-up.js' | asset_url }}" defer="defer"></script>
 
     {%- liquid
@@ -69,11 +74,13 @@
       {%- endif -%}
     {%- endstyle -%}
 
-    <pop-up class="popup-section modal invisible fixed top-0 left-0 w-full h-full flex {{ section.settings.position }}"
+    <pop-up class="popup-section{% if section.settings.shrink_width %} popup-section--shrink{% endif %} modal invisible fixed top-0 left-0 w-full h-full flex {{ section.settings.position }}"
             id="{{ section.id }}"
+            data-trigger="{{ section.settings.trigger }}"
             data-delay="{{ section.settings.delay }}"
-            data-dismiss-days="{{ section.settings.dismiss_days }}"
-            data-mode="{{ section.settings.mode }}">
+            data-dismiss-days="{% if section.settings.dismiss_days > 0 %}{{ section.settings.dismiss_days }}{% else %}400{% endif %}"
+            data-mode="{{ section.settings.mode }}"
+            data-show-on-mobile="{{ section.settings.show_on_mobile }}">
       <div class="modal__window{% if popup_image == false %} modal__window--no-image-block{% endif %} flex relative bg-theme-bg text-theme-text text-start has-motion{% if image_block != blank %} flex flex-col{% if popup_image_position == 'left' %} md:flex-row modal__window--side-image{% endif %}{% if popup_image_position == 'right' %} md:flex-row-reverse modal__window--side-image{% endif %}{% endif %}" role="dialog" aria-labelledby="{{ section.id }}-heading" aria-modal="true" tabindex="-1">
         <button type="button" class="modal__close-btn absolute text-current js-close-modal">
           {% render 'icon-close' %}
@@ -104,7 +111,7 @@
           </div>
         {%- endif -%}
 
-        <div class="flex-auto modal__content relative {{ section.settings.text_align }}">
+        <div class="flex-auto modal__content modal__content--p-{{ section.settings.padding }} relative {{ section.settings.text_align }}">
           {%- capture sizes %}{% render 'sizes-attribute' %}{% endcapture -%}
           {%- if section.settings.bg_image != blank -%}
             <div class="popup-section__background-image media media--has-overlay absolute top-0 left-0 h-full w-full">
@@ -122,7 +129,7 @@
             {%- case block.type -%}
               {%- when 'heading' -%}
                 {%- if block.settings.heading != blank -%}
-                  <h2 class="section__block section__block--heading {{ block.settings.heading_size }}" id="{{ section.id }}-heading" {{ block.shopify_attributes }}>
+                  <h2 class="{{ block.settings.heading_size }}" id="{{ section.id }}-heading" {{ block.shopify_attributes }}>
                     {{- block.settings.heading | escape -}}
                   </h2>
                 {%- endif -%}
@@ -212,24 +219,40 @@
                     --btn-bg-color: {{ btn_1_bg_color.rgb }};
                     --btn-text-color: {{ btn_1_text_color.rgb }};
                     --btn-bg-hover-color: {{ btn_1_bg_color_hover.rgb }};
+                    --btn-alt-text-color: {{ btn_1_bg_color.rgb }};
+                    --link-color: {{ btn_1_text_color.rgb }};
                   }
                   #{{ section.id }} .modal__window .btn--popup-2 {
                     --btn-bg-color: {{ btn_2_bg_color.rgb }};
                     --btn-text-color: {{ btn_2_text_color.rgb }};
                     --btn-bg-hover-color: {{ btn_2_bg_color_hover.rgb }};
+                    --btn-alt-text-color: {{ btn_2_bg_color.rgb }};
+                    --link-color: {{ btn_2_text_color.rgb }};
                   }
                 {%- endstyle -%}
                 {%- if block.settings.button_1_label != blank or block.settings.button_2_label != blank -%}
-                  <div class="section__block section__block--buttons inline-flex flex-wrap {% if section.settings.overlay_text_align == 'text-start' %} justify-start{% elsif section.settings.overlay_text_align == 'text-end' %} justify-end{% else %} justify-center{% endif %}{% if section.settings.mobile_centered %} md-down:center{% endif %}" {{ block.shopify_attributes }}>
+                  <div class="section__block section__block--buttons items-center inline-flex flex-wrap{% if section.settings.text_align == 'text-start' %} justify-start{% elsif section.settings.text_align == 'text-end' %} justify-end{% else %} justify-center{% endif %}" {{ block.shopify_attributes }}>
                     {%- if block.settings.button_1_label != blank %}
-                      <a class="btn btn--primary btn--popup-1" {% if block.settings.button_1_link == blank %}role="link" aria-disabled="true"{% else %}href="{{ block.settings.button_1_link }}"{% endif %}>
-                        {{- block.settings.button_1_label | escape -}}
-                      </a>
+                      {%- if block.settings.button_1_link != blank -%}
+                        <a class="{{ block.settings.button_1_style }} btn--popup-1 js-close-modal" href="{{ block.settings.button_1_link }}">
+                          {{- block.settings.button_1_label | escape -}}
+                        </a>
+                      {%- else -%}
+                        <button class="{{ block.settings.button_1_style }} btn--popup-1 js-close-modal">
+                          {{- block.settings.button_1_label | escape -}}
+                        </button>
+                      {%- endif -%}
                     {%- endif -%}
                     {%- if block.settings.button_2_label != blank %}
-                      <a class="btn btn--primary btn--popup-2" {% if block.settings.button_2_link == blank %}role="link" aria-disabled="true"{% else %}href="{{ block.settings.button_2_link }}"{% endif %}>
-                        {{- block.settings.button_2_label | escape -}}
-                      </a>
+                      {%- if block.settings.button_2_link != blank -%}
+                        <a class="{{ block.settings.button_2_style }} btn--popup-2 js-close-modal" href="{{ block.settings.button_2_link }}">
+                          {{- block.settings.button_2_label | escape -}}
+                        </a>
+                      {%- else -%}
+                        <button class="{{ block.settings.button_2_style }} btn--popup-2 js-close-modal">
+                          {{- block.settings.button_2_label | escape -}}
+                        </button>
+                      {%- endif -%}
                     {%- endif -%}
                   </div>
                 {%- endif -%}
@@ -248,6 +271,57 @@
   "class": "cc-pop-up",
   "settings": [
     {
+      "type": "header",
+      "content": "Trigger"
+    },
+    {
+      "type": "paragraph",
+      "content": "Choose the action which triggers the popup to show. Note, you can have more than one pop-up per page."
+    },
+    {
+      "type": "paragraph",
+      "content": "\"Exit intent\" will show the popup when the user moves the cursor as if they're about to exit the site. Does not work on mobile."
+    },
+    {
+      "type": "paragraph",
+      "content": "\"Copy to clipboard\" will open the popup when a user copies any website content to their clipboard. They may be copying product details to try and find a cheaper price elsewhere."
+    },
+    {
+      "type": "select",
+      "id": "trigger",
+      "label": "Show trigger",
+      "options": [
+        {
+          "value": "delay",
+          "label": "Delay"
+        },
+        {
+          "value": "exit",
+          "label": "Exit intent"
+        },
+        {
+          "value": "clipboard",
+          "label": "Copy to clipboard"
+        }
+      ],
+      "default": "delay"
+    },
+    {
+      "type": "range",
+      "id": "delay",
+      "label": "Delay seconds",
+      "info": "Only applies when the \"Trigger\" is \"Delay\".",
+      "default": 5,
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "unit": "s"
+    },
+    {
+      "type": "header",
+      "content": "Visibility"
+    },
+    {
       "type": "checkbox",
       "id": "show_to_guests_only",
       "label": "Show to guest users only",
@@ -255,26 +329,21 @@
       "default": true
     },
     {
-      "type": "range",
-      "id": "delay",
-      "label": "Delay",
-      "info": "Delay before showing the pop-up.",
-      "default": 5,
-      "min": 0,
-      "max": 30,
-      "step": 1,
-      "unit": "sec"
+      "type": "checkbox",
+      "id": "show_on_mobile",
+      "label": "Show on mobile",
+      "info": "Hiding the popup on mobile could help SEO.",
+      "default": true
     },
     {
       "type": "range",
       "id": "dismiss_days",
-      "label": "Frequency",
+      "label": "Days to remain dismissed",
       "default": 30,
-      "info": "Number of days before showing the pop-up again after being dismissed.",
-      "min": 2,
+      "info": "Number of days before showing the pop-up again after it gets closed. Set to 0 to show the popup only once.",
+      "min": 0,
       "max": 30,
-      "step": 1,
-      "unit": "day"
+      "step": 1
     },
     {
       "type": "header",
@@ -319,6 +388,32 @@
         }
       ],
       "default": "text-center"
+    },
+    {
+      "type": "select",
+      "id": "padding",
+      "label": "Padding",
+      "options": [
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "large"
+    },
+    {
+      "type": "checkbox",
+      "id": "shrink_width",
+      "label": "Shrink width to pop-up content",
+      "default": false
     },
     {
       "type": "header",
@@ -527,23 +622,44 @@
           "type": "text",
           "id": "button_1_label",
           "label": "Button label",
-          "default": "Optional button"
+          "default": "Close"
+        },
+        {
+          "type": "select",
+          "id": "button_1_style",
+          "label": "Button style",
+          "options": [
+            {
+              "value": "link",
+              "label": "Link"
+            },
+            {
+              "value": "btn btn--primary",
+              "label": "Primary button"
+            },
+            {
+              "value": "btn btn--secondary",
+              "label": "Secondary button"
+            }
+          ],
+          "default": "btn btn--primary"
         },
         {
           "type": "url",
           "id": "button_1_link",
+          "info": "Clicking the button will close the popup.",
           "label": "Button link"
         },
         {
           "type": "color",
           "id": "btn_1_bg_color",
-          "label": "Button background color",
+          "label": "Background",
           "default": "#555555"
         },
         {
           "type": "color",
           "id": "btn_1_text_color",
-          "label": "Button text color",
+          "label": "Text",
           "default": "#ffffff"
         },
         {
@@ -553,24 +669,44 @@
         {
           "type": "text",
           "id": "button_2_label",
-          "label": "Button label",
-          "default": "Optional button"
+          "label": "Button label"
+        },
+        {
+          "type": "select",
+          "id": "button_2_style",
+          "label": "Button style",
+          "options": [
+            {
+              "value": "link",
+              "label": "Link"
+            },
+            {
+              "value": "btn btn--primary",
+              "label": "Primary button"
+            },
+            {
+              "value": "btn btn--secondary",
+              "label": "Secondary button"
+            }
+          ],
+          "default": "btn btn--secondary"
         },
         {
           "type": "url",
           "id": "button_2_link",
+          "info": "Clicking the button will close the popup.",
           "label": "Button link"
         },
         {
           "type": "color",
           "id": "btn_2_bg_color",
-          "label": "Button background color",
+          "label": "Background",
           "default": "#070707"
         },
         {
           "type": "color",
           "id": "btn_2_text_color",
-          "label": "Button text color",
+          "label": "Text",
           "default": "#ffffff"
         }
       ]

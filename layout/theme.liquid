@@ -2,9 +2,11 @@
   assign rtl = false
   assign rtl_iso_codes = 'ar,arc,dv,fa,ha,he,khw,ks,ku,ps,ur,yi' | split: ','
   assign current_code_first_part = localization.language.iso_code | split: '-' | first
+
   if rtl_iso_codes contains current_code_first_part
     assign rtl = true
   endif
+
   assign body_font_bold = settings.body_font | font_modify: 'weight', 'bolder'
   assign body_font_italic = settings.body_font | font_modify: 'style', 'italic'
   assign body_font_bold_italic = body_font_bold | font_modify: 'style', 'italic'
@@ -20,37 +22,10 @@
 <!doctype html>
 <html class="no-js" lang="{{ request.locale.iso_code }}" dir="{% if rtl %}rtl{% else %}ltr{% endif %}">
 <head>
-  <!-- BEGIN Merchantverse Code -->
-<script id='merchantverseScript'
-src="https://www.gstatic.com/merchantverse/merchantverse.js"
-defer>
-</script>
-<script type="text/javascript">
-merchantverseScript.addEventListener('load', function () {
-merchantverse.start();
-});
-</script>
-<!-- END Merchantverse Code -->
-  <!-- END Merchantverse Code -->
-	<!-- Added by AVADA SEO Suite -->
-	{% include 'avada-seo' %}
-	<!-- /Added by AVADA SEO Suite -->
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-NXJG33NLNM"></script>
- 
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-NXJG33NLNM');
-</script>
- <link rel="preload" as="style" href="{{ 'main.css' | asset_url }}">
-  {% render 'htop' %}
-<meta name="google-site-verification" content="syaAroz92bcHrY43MWCpvws3akMArxt9YLVkVwrgpFM" />
-  <meta name="google-site-verification" content="IV7BPLESttSpBdxSWN1s4zlr4HIcuHkGQYmE3wLG59w" />
   {%- render 'doc-head-core' -%}
   {%- render 'doc-head-social' -%}
+
+  <link rel="preload" href="{{ 'main.css' | asset_url }}" as="style">
 
   {%- style %}
     {{- settings.body_font | font_face: font_display: 'swap' -}}
@@ -78,6 +53,8 @@ merchantverse.start();
         -%}
         --swatch-border-color-default: {{ swatch_border_color_default.rgb }};
         --swatch-border-color-active: {{ swatch_border_color_active.rgb }};
+        --swatch-card-size: {{ settings.card_swatch_size }}px;
+        --swatch-variant-picker-size: {{ settings.variant_picker_swatch_size }}px;
       {%- endif -%}
 
       {%- assign color_scheme_1_btn_bg_hover = settings.color_scheme_1_btn_bg | color_mix: settings.color_scheme_1_btn_text, 85 | color_lighten: 3 -%}
@@ -118,6 +95,7 @@ merchantverse.start();
       --low-stock-text-color: {{ settings.low_stock_text_color.rgb }};
       --very-low-stock-text-color: {{ settings.very_low_stock_text_color.rgb }};
       --no-stock-text-color: {{ settings.no_stock_text_color.rgb }};
+      --no-stock-backordered-text-color: {{ settings.no_stock_backordered_text_color.rgb }};
 
       --error-bg-color: {{ settings.error_bg_color.rgb }};
       --error-text-color: {{ settings.error_text_color.rgb }};
@@ -261,7 +239,7 @@ merchantverse.start();
         {% if settings.animations_enabled == "desktop" %}
           --aos-min-width: {{ breakpoint_sm }};
         {% else %}
-          --aos-min-width: 0;
+          --aos-min-width: 0px;
         {% endif %}
       {% endif %}
 
@@ -276,7 +254,6 @@ merchantverse.start();
   {% endstyle -%}
 
   <link rel="stylesheet" href="{{ 'main.css' | asset_url }}">
-  <link rel="stylesheet" href="{{ 'custom.css' | asset_url }}">
   <script src="{{ 'main.js' | asset_url }}" defer="defer"></script>
 
   {%- unless settings.body_font.system? -%}
@@ -290,13 +267,13 @@ merchantverse.start();
   {%- if request.page_type contains 'customers' -%}
     <link rel="stylesheet" href="{{ 'customer.css' | asset_url }}">
   {%- endif -%}
+
   {%- if settings.swatch_colors != blank -%}
     <link rel="stylesheet" href="{{ 'swatches.css' | asset_url }}" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="{{ 'swatches.css' | asset_url }}"></noscript>
   {%- endif -%}
 
-  <img width="99999" alt=”{{imge.alt}}” height="99999" style="pointer-events: none; position: absolute; top: 0; left: 0; width: 96vw; height: 96vh; max-width: 99vw; max-height: 99vh;" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48c3ZnIHdpZHRoPSI5OTk5OXB4IiBoZWlnaHQ9Ijk5OTk5cHgiIHZpZXdCb3g9IjAgMCA5OTk5OSA5OTk5OSIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIj48ZyBzdHJva2U9Im5vbmUiIGZpbGw9Im5vbmUiIGZpbGwtb3BhY2l0eT0iMCI+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9Ijk5OTk5IiBoZWlnaHQ9Ijk5OTk5Ij48L3JlY3Q+IDwvZz4gPC9zdmc+">
-  {% assign yhIj = "document.addEventListener('DOMContentLoaded" %}{% assign uhJi = "document.addEventListener('asyncLazyLoad" %}{% assign kGxh = "if(window.attachEvent)" %}{% assign snOi = "document.addEventListener('asyncLazyLoad',function(event){asyncLoad();});if(window.attachEvent)" %}{% assign rapp = ", asyncLoad" %}{% assign napp = ", function(){}" %}{% if template == "cart" or request.design_mode %}{{ content_for_header }}{% else %}{{ content_for_header | replace: "src=", "data-src=" | replace_first: "data-src", "src" | replace: yhIj, uhJi | replace: rapp, napp | replace: kGxh, snOi }}{% endif %}
+  {{ content_for_header }}
 
   {%- if request.design_mode -%}
     <script src="{{ 'theme-editor.js' | asset_url }}" defer="defer"></script>
@@ -318,75 +295,9 @@ merchantverse.start();
     {{- settings.custom_html_head -}}
     <!-- CC Custom Head End -->
   {%- endif -%}
-  
-
-
-{% render 'gsf-conversion-pixels' %}
-
-<!-- Global site tag (gtag.js) - AdWords:919730712 -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=AW-919730712"></script>
-<script>
- window.dataLayer = window.dataLayer || [];
- function gtag(){dataLayer.push(arguments);}
- gtag('js', new Date());
-
-gtag('config', 'AW-919730712');
-</script>
-{% if template contains 'index' %}
-<script>
- gtag('event', 'page_view', {
- 'send_to': 'AW-919730712',
- 'ecomm_pagetype': 'home'
- });
-</script>
-{% elsif template contains 'collection' %}
-<script>
- gtag('event', 'page_view', {
- 'send_to': 'AW-919730712',
- 'ecomm_pagetype': 'category'
- });
-</script>
-{% elsif template contains 'product' %}
-<script>
- gtag('event', 'view_item', {
- 'send_to': 'AW-919730712',
- 'ecomm_pagetype': 'product',
-   'ecomm_prodid': 'shopify_{{shop.address.country_code}}_{{ product.id }}_{{product.first_available_variant.id}}',
-'id': 'shopify_{{shop.address.country_code}}_{{ product.id }}_{{product.first_available_variant.id}}',
- 'ecomm_totalvalue': '{{ product.price | money_without_currency | remove: ',' }}'
- });
-</script>
-{% elsif template contains 'cart' %}
-<script>
- gtag('event', 'add_to_cart', {
- 'send_to': 'AW-919730712',
- 'ecomm_pagetype': 'cart',
-   'ecomm_prodid': [{% for item in cart.items %}'shopify_{{shop.address.country_code}}_{{ item.product.id }}_{{item.product.first_available_variant.id}}'{% unless forloop.last %},{% endunless %}{% endfor %}],
- 'ecomm_totalvalue': '{{cart.total_price | money_without_currency | remove: ',' }}'
- });
-</script>
-{% elsif template contains 'search' %}
-<script>
- gtag('event', 'page_view', {
- 'send_to': 'AW-919730712',
- 'ecomm_pagetype': 'searchresults'
- });
-</script>
-{% else %}
-<script>
- gtag('event', 'page_view', {
- 'send_to': 'AW-919730712',
- 'ecomm_pagetype': 'other'
- });
-</script>
-{% endif %}  
-
-  {% if template == '404' %}<meta http-equiv="refresh" content="0;URL={{ shop.url }}" />{% endif %}
-  <meta name="msvalidate.01" content="C875E6DAA1800A52B95B9D9225E14A34" />
 </head>
 
 <body{% if settings.animations_enabled != "disabled" %} class="cc-animate-enabled"{% endif %}>
-
   <a class="skip-link btn btn--primary visually-hidden" href="#main-content">
     {{- 'accessibility.skip_to_content' | t -}}
   </a>
@@ -413,7 +324,7 @@ gtag('config', 'AW-919730712');
         {%- liquid
           assign show_rss_link = false
           if template.name == 'blog'
-            assign show_rss_link = true
+            assign show_rss_link = settings.show_breadcrumbs_blog_rss
           endif
         -%}
         {% render 'breadcrumbs', show_rss_link: show_rss_link %}
@@ -456,7 +367,7 @@ gtag('config', 'AW-919730712');
     window.theme = {
       info: {
         name: 'Enterprise',
-        version: '1.0.1'
+        version: '1.4.0'
       },
       mediaQueries: {
         sm: '(min-width: 600px)',
@@ -479,7 +390,7 @@ gtag('config', 'AW-919730712');
       },
       settings: {
         moneyWithCurrencyFormat: {{ shop.money_with_currency_format | json }},
-        pSearchLimit: 10,
+        pSearchLimit: {{ settings.predictive_search_limit | json }},
         pSearchLimitScope: 'each',
         pSearchIncludeSkus: {{ settings.predictive_search_include_skus | json }},
         pSearchIncludeTags: {{ settings.predictive_search_include_tags | json }},
@@ -487,6 +398,7 @@ gtag('config', 'AW-919730712');
         pSearchShowCollections: {{ settings.predictive_search_show_collections | json }},
         pSearchShowPages: {{ settings.search_show_pages | json }},
         pSearchShowProducts: {{ settings.search_show_products | json }},
+        pSearchShowSuggestions: {{ settings.search_show_suggestions | json }},
         sliderItemsPerNav: '{{ settings.slider_items_per_nav }}',
         {% if settings.show_blur_messages %}
           blurMessage1: {{ settings.blur_message_1 | json }},
@@ -506,6 +418,7 @@ gtag('config', 'AW-919730712');
         editCartNote: '{{ "cart.note.edit" | t }}',
         cartError: '{{ "cart.general.error" | t }}',
         cartQtyError: '{{ "cart.items.quantity_error" | t: quantity: "[quantity]" }}',
+        cartTermsConfirmation: '{{ "cart.terms.confirmation" | t }}',
         imageAvailable: '{{ "products.product.media.image_available" | t: index: "[index]" }}',
         lowStock: '{{ 'products.inventory.low_stock' | t }}',
         inStock: '{{ 'products.inventory.in_stock' | t }}',
@@ -560,46 +473,5 @@ gtag('config', 'AW-919730712');
   {%- if request.design_mode == false and settings.preload_links -%}
     <script src="{{ 'instant-page.js' | asset_url }}" type="module" defer="defer"></script>
   {%- endif -%}
-{% render 'enimoh' %} 
- <script>
-(function () {
-  var s = document.createElement('script');
-  s.src = 'https://static.willdesk.com/c/willdesk.min.js?v=';
-  s.src += new Date().getTime();
-  document.body.appendChild(s);
-})();
-</script>
-
- {% include 'gts' %}
-{% render 'ftop' %}
-
-  <!-- Shopper Approved - layout/theme -->
-  <style>
-    #SA_review_wrapper ul li {
-      list-style: none !important;
-    }
-    #SA_review_wrapper ul li:before {
-      display:none; 
-    }
-    .SA__social-share-wrapper h4{
-      margin: 0px 0px !important;
-    }
-    .SA__verified_customer{
-      text-transform: none;
-    }
-    #SA_review_wrapper .SA__review_widget .SA__review_widget_item .SA__review_content .SA__review_num_ratings span{
-      vertical-align: -1px;
-    }
-    #SA_review_wrapper .SA__review_widget .SA__review_widget_item .SA__review_content .SA__review_num_ratings span:last-child{
-      vertical-align: -1px;
-    }
-    .SA__pagination ul li a{
-      width: 40px;
-    }
-    .SA__pagination ul li a img{
-      margin: -10px 0 0px 0;
-    }
-  </style>
-  <!-- END Shopper Approved - layout/theme -->
- </body>
+</body>
 </html>

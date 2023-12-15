@@ -103,7 +103,7 @@
   </div>
 
   {%- if shop.checkout.guest_login -%}
-    <h2>{{ 'customer.login.guest_title' | t }}</h2>
+    <h2 class="text-center mt-10">{{ 'customer.login.guest_title' | t }}</h2>
 
     {%- form 'guest_login', class: 'form form-width mx-auto' -%}
       <button class="btn btn--secondary w-full">{{ 'customer.login.guest_continue' | t }}</button>

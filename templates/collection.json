@@ -2,78 +2,15 @@
   "sections": {
     "collection-banner": {
       "type": "main-collection-banner",
-      "settings": {
-        "show_collection_title": true,
-        "show_product_count": true,
-        "show_collection_description": true,
-        "text_align": "text-start",
-        "collection_image": "1.77",
-        "use_product_image": false,
-        "text_width": "wide",
-        "color_scheme": "default"
-      }
-    },
-    "1685255847bf251b9b": {
-      "type": "apps",
-      "blocks": {
-        "fbd6628c-32af-44d7-a2b0-375f148b2ad5": {
-          "type": "shopify:\/\/apps\/convermax-year-make-model\/blocks\/collection-page\/874383ce-1b49-4436-9ea6-3697a3a5a3d5",
-          "settings": {
-            "wrapper_classes": ""
-          }
-        }
-      },
-      "block_order": [
-        "fbd6628c-32af-44d7-a2b0-375f148b2ad5"
-      ],
-      "settings": {
-        "full_width": false
-      }
+      "settings": {}
     },
     "collection-products": {
       "type": "main-collection-products",
-      "blocks": {
-        "a02ecef5-1f8b-44f4-ab40-b9f4ec3008ba": {
-          "type": "wide-promotion",
-          "settings": {
-            "position": "top",
-            "view": "grid_list",
-            "hide_on_filter": true,
-            "min_height": 150,
-            "content": "<p>Promotion text<\/p>",
-            "link_url": "",
-            "text_type_scale": "--h4-font-size",
-            "text_width": 400,
-            "text_alignment": "justify-center items-center text-center",
-            "text_color": "#ffffff",
-            "tint_color": "#000000",
-            "tint_opacity": 20
-          }
-        }
-      },
-      "block_order": [
-        "a02ecef5-1f8b-44f4-ab40-b9f4ec3008ba"
-      ],
-      "disabled": true,
-      "settings": {
-        "products_per_page": 20,
-        "card_size": "small",
-        "show_layout_toggle": true,
-        "enable_filtering": true,
-        "filters_open_lg": true,
-        "stick_on_scroll": true,
-        "show_filter_counts": true,
-        "expand_filters": true,
-        "max_filter_options": 14,
-        "enable_sorting": true,
-        "show_feat_sort_opt": true,
-        "sort_first": true
-      }
+      "settings": {}
     }
   },
   "order": [
     "collection-banner",
-    "1685255847bf251b9b",
     "collection-products"
   ]
 }

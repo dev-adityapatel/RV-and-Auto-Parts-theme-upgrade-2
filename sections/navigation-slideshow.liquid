@@ -1,9 +1,17 @@
-<link rel="stylesheet" href="{{ 'slideshow.css' | asset_url }}">
-<link rel="stylesheet" href="{{ 'slideshow-quick-nav.css' | asset_url }}">
-<link rel="stylesheet" href="{{ 'text-overlay.css' | asset_url }}">
+{%- if section.index > 2 -%}
+  <link rel="stylesheet" href="{{ 'slideshow.css' | asset_url }}" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="{{ 'slideshow-quick-nav.css' | asset_url }}" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="{{ 'text-overlay.css' | asset_url }}" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="{{ 'quick-nav.css' | asset_url }}" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="{{ 'quick-nav-large.css' | asset_url }}" media="print" onload="this.media='all'">
+{%- else -%}
+  {{ 'slideshow.css' | asset_url | stylesheet_tag }}
+  {{ 'slideshow-quick-nav.css' | asset_url | stylesheet_tag }}
+  {{ 'text-overlay.css' | asset_url | stylesheet_tag }}
+  {{ 'quick-nav.css' | asset_url | stylesheet_tag }}
+  {{ 'quick-nav-large.css' | asset_url | stylesheet_tag }}
+{%- endif -%}
 
-{{ 'quick-nav.css' | asset_url | stylesheet_tag }}
-{{ 'quick-nav-large.css' | asset_url | stylesheet_tag }}
 <script src="{{ 'quick-nav.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'custom-select.js' | asset_url }}" defer="defer"></script>
 
@@ -51,6 +59,10 @@
     {%- endif -%}
   }
 
+  #{{ section.id }} .slideshow-ctrl {
+    --text-color: {{ section.settings.pagination_color.red }} {{ section.settings.pagination_color.green }} {{ section.settings.pagination_color.blue }};
+  }
+
   {%- if section.settings.height_mode == 'fixed' -%}
     #{{ section.id }} .image-banner { min-height: {{ section.settings.fixed_height_mobile }}px; }
 
@@ -94,16 +106,40 @@
           assign img = block.settings.image_desktop
           assign m_img = block.settings.image_mobile
           assign lazy_load = true
-          if forloop.first and section.settings.prevent_animation
-            assign lazy_load = false
+          if forloop.first
+            if section.index == 1 or section.settings.prevent_animation
+              assign lazy_load = false
+            endif
+          endif
+
+          if color_scheme == "white"
+            assign brightness = block.settings.transparent_content_color | color_brightness
+            assign alpha = block.settings.transparent_content_color | color_extract: 'alpha'
+            if brightness < 190 and alpha > 0
+              assign transparent_text_contrast = "255 255 255"
+              assign transparent_hover_color = block.settings.transparent_content_color | color_lighten: 10
+            else
+              assign transparent_text_contrast = "0 0 0"
+              assign transparent_hover_color = block.settings.transparent_content_color | color_darken: 10
+            endif
           endif
         -%}
-        <div class="slideshow__slide{% if forloop.first %} is-active{% endif %} image-banner flex w-full {{ section.settings.height_mode }}-height" id="{{ section.id }}_{{ forloop.index }}"
+
+        {%- if color_scheme == "white" -%}
+          {%- capture style -%}
+            --color-scheme-white-text: {{ block.settings.transparent_content_color.red }} {{ block.settings.transparent_content_color.green }} {{ block.settings.transparent_content_color.blue }};
+            --color-scheme-white-hover: {{ transparent_hover_color.red }} {{ transparent_hover_color.green }} {{ transparent_hover_color.blue }};
+            --color-scheme-white-text-contrast: {{ transparent_text_contrast }};
+          {%- endcapture -%}
+        {%- endif -%}
+
+        <div class="slideshow__slide{% if forloop.first %} is-active{% endif %} image-banner flex w-full {{ section.settings.height_mode }}-height{% if color_scheme == "white" %} color-scheme color-scheme--white{% endif %}" id="{{ section.id }}_{{ forloop.index }}"
              role="group" aria-roledescription="{{ 'sections.slideshow.slide' | t }}"
              aria-label="{{ forloop.index }} {{ 'general.slider.of' | t }} {{ forloop.length }}"
+             {% if style %}style="{{ style }}"{% endif %}
              {%- unless forloop.first %}tabindex="-1"{% endunless %}
-             {%- if request.design_mode %}data-index="{{ forloop.index0 }}"{% endif %}
-             {{ block.shopify_attributes }}>
+          {%- if request.design_mode %}data-index="{{ forloop.index0 }}"{% endif %}
+          {{ block.shopify_attributes }}>
           <div class="image-banner__image media media--has-overlay absolute top-0 left-0 w-full h-full has-motion">
             {%- if img != blank -%}
               {%- liquid
@@ -131,7 +167,7 @@
                   src_width: 980,
                   src_placeholder: true,
                   sizes: sizes,
-                  quality: 1,
+                  quality: 1.5,
                   class: 'img-fit sm:hidden',
                   lazy_load: lazy_load
                 -%}
@@ -139,7 +175,7 @@
 
               {%- render 'image',
                 image: img,
-                widths: '1200, 1400, 1600, 1920, 2560, 3200',
+                widths: '480, 980, 1200, 1400, 1600, 1920, 2560, 3200',
                 src_width: 1400,
                 src_placeholder: true,
                 sizes: sizes,
@@ -289,24 +325,24 @@
         -%}
         {%
           render 'quick-nav',
-            component_id: block.id,
-            menu: section.settings.quick_nav_menu,
-            image_ratio: section.settings.quick_nav_image_ratio,
-            image_fit: section.settings.quick_nav_image_fit,
-            use_product_image: section.settings.quick_nav_use_product_image,
-            color_scheme: section.settings.quick_nav_color_scheme,
-            show_price: section.settings.quick_nav_show_price,
-            animate: animate,
-            title: section.settings.quick_nav_title,
-            menu_1_display: menu_1_display,
-            menu_1_boxed: menu_1_boxed,
-            menu_1_text: section.settings.menu_1_text,
-            menu_2_display: menu_2_display,
-            menu_2_boxed: menu_2_boxed,
-            menu_2_text: section.settings.menu_2_text,
-            menu_3_display: menu_3_display,
-            menu_3_boxed: menu_3_boxed,
-            menu_3_text: section.settings.menu_3_text
+          component_id: block.id,
+          menu: section.settings.quick_nav_menu,
+          image_ratio: section.settings.quick_nav_image_ratio,
+          image_fit: section.settings.quick_nav_image_fit,
+          use_product_image: section.settings.quick_nav_use_product_image,
+          color_scheme: section.settings.quick_nav_color_scheme,
+          show_price: section.settings.quick_nav_show_price,
+          animate: animate,
+          title: section.settings.quick_nav_title,
+          menu_1_display: menu_1_display,
+          menu_1_boxed: menu_1_boxed,
+          menu_1_text: section.settings.menu_1_text,
+          menu_2_display: menu_2_display,
+          menu_2_boxed: menu_2_boxed,
+          menu_2_text: section.settings.menu_2_text,
+          menu_3_display: menu_3_display,
+          menu_3_boxed: menu_3_boxed,
+          menu_3_text: section.settings.menu_3_text
         %}
       </div>
     {%- endif -%}
@@ -407,11 +443,11 @@
       "type": "select",
       "id": "quick_nav_image_fit",
       "label": "Image fit",
-      "info": "Choose to 'contain' the image (so it is fully visible) or 'cover' to fill the entire image box (image may be cropped).",
+      "info": "Choose \"Natural\" to avoid cropping the image or \"Cover\" to fill available space (image may be cropped).",
       "options": [
         {
           "value": "contain",
-          "label": "Contain"
+          "label": "Natural"
         },
         {
           "value": "cover",
@@ -433,8 +469,12 @@
       "info": "\"Content panels\" colors can be changed in \"Theme Settings > Colors > Content panels\".",
       "options": [
         {
+          "value": "none",
+          "label": "Default"
+        },
+        {
           "value": "default",
-          "label": "Default (Content panel)"
+          "label": "Content panel"
         },
         {
           "value": "1",
@@ -449,7 +489,7 @@
           "label": "Scheme 3"
         }
       ],
-      "default": "default"
+      "default": "none"
     },
     {
       "type": "checkbox",
@@ -583,7 +623,7 @@
       "options": [
         {
           "value": "arrows",
-          "label": "Arrows and numbers"
+          "label": "Arrows"
         },
         {
           "value": "slideshow_nav_dots",
@@ -595,6 +635,12 @@
         }
       ],
       "default": "slideshow_nav_lines"
+    },
+    {
+      "type": "color",
+      "id": "pagination_color",
+      "label": "Pagination color",
+      "default": "#ffffff"
     },
     {
       "type": "select",
@@ -646,11 +692,12 @@
     {
       "type": "select",
       "id": "color_scheme",
+      "info": "When \"Transparent background\" is chosen, the text color can be set in each slide.",
       "label": "Color scheme",
       "options": [
         {
           "value": "white",
-          "label": "White"
+          "label": "Transparent background"
         },
         {
           "value": "default",
@@ -888,6 +935,13 @@
             }
           ],
           "default": "btn btn--primary"
+        },
+        {
+          "type": "color",
+          "id": "transparent_content_color",
+          "label": "Text color",
+          "info": "Only applies when the \"Transparent background\" color scheme is chosen.",
+          "default": "#ffffff"
         }
       ]
     }

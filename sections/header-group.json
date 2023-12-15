@@ -8,13 +8,13 @@
         "announcement-1": {
           "type": "announcement",
           "settings": {
-            "text": "<p><strong>Welcome to RV & Auto Parts<\/strong> <a href=\"\/pages\/contact\" target=\"_blank\" title=\"Contact\">Learn more<\/a><\/p>"
+            "text": "<p><strong>Welcome to our store<\/strong> <a href=\"#\" title=\"#\">Learn more<\/a><\/p>"
           }
         },
         "announcement-2": {
           "type": "announcement",
           "settings": {
-            "text": "<p><strong>New Products added!<\/strong> <a href=\"#\" title=\"#\">Learn more<\/a><\/p>"
+            "text": "<p><strong>New collections added!<\/strong> <a href=\"#\" title=\"#\">Learn more<\/a><\/p>"
           }
         }
       },
@@ -22,135 +22,13 @@
         "announcement-1",
         "announcement-2"
       ],
-      "settings": {
-        "link1": "",
-        "link1_label": "",
-        "link2": "",
-        "link2_label": "",
-        "enable_country_selector": true,
-        "enable_language_selector": true,
-        "bg_color": "#000000",
-        "text_color": "#ffffff",
-        "text_type_scale": "small",
-        "read_time": 7
-      }
+      "settings": {}
     },
     "header": {
       "type": "header",
-      "blocks": {
-        "162ae4cf-ab56-4804-8d31-2bf010adf464": {
-          "type": "columns",
-          "settings": {
-            "title": "RV Parts Shop, Truck & Auto, Powersports, Marine, New!, Popular",
-            "collection_images": "standard",
-            "collection_use_product_image": false,
-            "show_underline": true,
-            "promo_position": "bottom",
-            "promo_min_height": 200,
-            "promo_text_color": "#ffffff",
-            "promo_tint_color": "#000000",
-            "promo_tint_opacity": 20,
-            "promo1_content": "",
-            "promo1_link_url": "",
-            "promo1_text_size": 16,
-            "promo1_text_width": 100,
-            "promo1_text_alignment": "justify-center items-center text-center",
-            "promo2_content": "",
-            "promo2_link_url": "",
-            "promo2_text_size": 16,
-            "promo2_text_width": 100,
-            "promo2_text_alignment": "justify-center items-center text-center",
-            "promo3_content": "",
-            "promo3_link_url": "",
-            "promo3_text_size": 16,
-            "promo3_text_width": 100,
-            "promo3_text_alignment": "justify-center items-center text-center",
-            "badge1_color": "#000000",
-            "badge1_link": "",
-            "badge1_text": "",
-            "badge2_color": "#000000",
-            "badge2_link": "",
-            "badge2_text": "",
-            "badge3_color": "#000000",
-            "badge3_link": "",
-            "badge3_text": ""
-          }
-        },
-        "81eea232-da89-475d-b2ef-d179d7ad612d": {
-          "type": "sidebar",
-          "disabled": true,
-          "settings": {
-            "title": "RV Parts Shop, Truck & Auto, Powersports, Marine",
-            "collection_images": "standard",
-            "collection_use_product_image": false,
-            "show_underline": true,
-            "show_collection_images": true,
-            "sidebar_link_use_product_image": false,
-            "show_product_images": true,
-            "aspect_ratio": "1",
-            "badge1_color": "#000000",
-            "badge1_link": "",
-            "badge1_text": "",
-            "badge2_color": "#000000",
-            "badge2_link": "",
-            "badge2_text": "",
-            "badge3_color": "#000000",
-            "badge3_link": "",
-            "badge3_text": ""
-          }
-        },
-        "6c826d79-bf2c-4aea-89ed-344832fe59cc": {
-          "type": "pills",
-          "disabled": true,
-          "settings": {
-            "title": "Brands",
-            "collection_images": "standard",
-            "collection_use_product_image": false,
-            "promo_position": "bottom",
-            "promo_min_height": 200,
-            "promo_text_color": "#ffffff",
-            "promo_tint_color": "#000000",
-            "promo_tint_opacity": 20,
-            "promo1_content": "",
-            "promo1_link_url": "",
-            "promo1_text_size": 16,
-            "promo1_text_width": 100,
-            "promo1_text_alignment": "justify-center items-center text-center",
-            "promo2_content": "",
-            "promo2_link_url": "",
-            "promo2_text_size": 16,
-            "promo2_text_width": 100,
-            "promo2_text_alignment": "justify-center items-center text-center",
-            "promo3_content": "",
-            "promo3_link_url": "",
-            "promo3_text_size": 16,
-            "promo3_text_width": 100,
-            "promo3_text_alignment": "justify-center items-center text-center"
-          }
-        }
-      },
-      "block_order": [
-        "162ae4cf-ab56-4804-8d31-2bf010adf464",
-        "81eea232-da89-475d-b2ef-d179d7ad612d",
-        "6c826d79-bf2c-4aea-89ed-344832fe59cc"
-      ],
       "settings": {
         "enable_sticky": true,
-        "mobile_menu_position": "burger-left",
-        "logo_text": "RV & Auto Parts",
-        "logo_type_scale": "2",
-        "logo": "{{ shop.brand.logo }}",
-        "logo_width": 150,
-        "enable_search": true,
-        "minimise_search_mobile": false,
-        "minimise_search_desktop": false,
-        "menu": "main-menu",
-        "repeat_links": true,
-        "menu_featured_link": "Sale",
-        "quicklinks_menu": "",
-        "bg_color": "#ffffff",
-        "text_color": "#070707",
-        "accent_color": "#777777"
+        "logo": "{{ shop.brand.logo }}"
       }
     },
     "promo-strip": {
@@ -159,162 +37,40 @@
         "heading-0": {
           "type": "heading",
           "settings": {
-            "heading": "Shop Now for Savings!",
-            "heading_size": "h6",
-            "show_on_mobile": true,
-            "show_on_desktop": true
+            "heading": "Announce a promotion",
+            "heading_size": "h6"
           }
         },
         "text-1": {
           "type": "text",
           "settings": {
-            "text": "<p>New Website New Deals!<\/p>",
-            "enlarge_text": false,
-            "show_on_mobile": true,
-            "show_on_desktop": true
+            "text": "<p>Share something special with your customers.<\/p>",
+            "enlarge_text": false
           }
         },
         "discount-2": {
           "type": "discount",
-          "disabled": true,
           "settings": {
-            "discount_code": "Spooky5"
-          }
-        },
-        "d7d780e6-d1cb-4625-8f40-2ec33855bcb7": {
-          "type": "button",
-          "disabled": true,
-          "settings": {
-            "button_label": "Button",
-            "button_link": "",
-            "button_style": "btn btn--secondary"
+            "discount_code": "DISCOUNTCODE"
           }
         }
       },
       "block_order": [
         "heading-0",
         "text-1",
-        "discount-2",
-        "d7d780e6-d1cb-4625-8f40-2ec33855bcb7"
+        "discount-2"
       ],
       "settings": {
         "section_height": "xsmall",
-        "color_scheme": "2",
-        "full_width": true,
-        "dividers": "border-top",
-        "prevent_animation": true
-      }
-    },
-    "818919f7-1c89-4afb-b11d-f1f9d6e81bcf": {
-      "type": "icons-with-text",
-      "blocks": {
-        "sections--18960426041645__818919f7-1c89-4afb-b11d-f1f9d6e81bcf-16834785950d5c4b71-0": {
-          "type": "item",
-          "settings": {
-            "icon": "truck",
-            "heading": "Free shipping",
-            "text": "<p>On all Ground Shipments!<\/p>",
-            "link": ""
-          }
-        },
-        "sections--18960426041645__818919f7-1c89-4afb-b11d-f1f9d6e81bcf-16834785950d5c4b71-1": {
-          "type": "item",
-          "settings": {
-            "icon": "price_tag",
-            "heading": "Special offers",
-            "text": "<p>Regular sales and discounts<\/p>",
-            "link": ""
-          }
-        },
-        "sections--18960426041645__818919f7-1c89-4afb-b11d-f1f9d6e81bcf-16834785950d5c4b71-2": {
-          "type": "item",
-          "settings": {
-            "icon": "return",
-            "heading": "Easy returns",
-            "text": "<p>Hassle free returns policy<\/p>",
-            "link": ""
-          }
-        },
-        "sections--18960426041645__818919f7-1c89-4afb-b11d-f1f9d6e81bcf-16834785950d5c4b71-3": {
-          "type": "item",
-          "disabled": true,
-          "settings": {
-            "icon": "chat_bubble",
-            "heading": "Chat facility",
-            "text": "<p>Talk to a real person<\/p>",
-            "link": ""
-          }
-        }
-      },
-      "block_order": [
-        "sections--18960426041645__818919f7-1c89-4afb-b11d-f1f9d6e81bcf-16834785950d5c4b71-0",
-        "sections--18960426041645__818919f7-1c89-4afb-b11d-f1f9d6e81bcf-16834785950d5c4b71-1",
-        "sections--18960426041645__818919f7-1c89-4afb-b11d-f1f9d6e81bcf-16834785950d5c4b71-2",
-        "sections--18960426041645__818919f7-1c89-4afb-b11d-f1f9d6e81bcf-16834785950d5c4b71-3"
-      ],
-      "settings": {
-        "heading": "",
-        "heading_align": "text-start",
-        "icon_size": 48,
-        "icon_position": "beside",
-        "section_height": "medium",
         "color_scheme": "1",
         "full_width": true,
-        "dividers": "none",
-        "prevent_animation": false
-      }
-    },
-    "b3a6f1db-a0fd-4075-8742-9eb42e1b3ae9": {
-      "type": "promo-strip",
-      "blocks": {
-        "sections--19790215250221__b3a6f1db-a0fd-4075-8742-9eb42e1b3ae9-heading-1": {
-          "type": "heading",
-          "disabled": true,
-          "settings": {
-            "heading": "November: Falling Leaves, Rising Savings! 🍂💰",
-            "heading_size": "h4",
-            "show_on_mobile": true,
-            "show_on_desktop": true
-          }
-        },
-        "sections--19790215250221__b3a6f1db-a0fd-4075-8742-9eb42e1b3ae9-text-1": {
-          "type": "text",
-          "settings": {
-            "text": "<p>More Offers Coming Soon!<\/p>",
-            "enlarge_text": true,
-            "show_on_mobile": true,
-            "show_on_desktop": true
-          }
-        },
-        "sections--19790215250221__b3a6f1db-a0fd-4075-8742-9eb42e1b3ae9-button-1": {
-          "type": "button",
-          "disabled": true,
-          "settings": {
-            "button_label": "Button",
-            "button_link": "",
-            "button_style": "btn btn--secondary"
-          }
-        }
-      },
-      "block_order": [
-        "sections--19790215250221__b3a6f1db-a0fd-4075-8742-9eb42e1b3ae9-heading-1",
-        "sections--19790215250221__b3a6f1db-a0fd-4075-8742-9eb42e1b3ae9-text-1",
-        "sections--19790215250221__b3a6f1db-a0fd-4075-8742-9eb42e1b3ae9-button-1"
-      ],
-      "settings": {
-        "section_height": "small",
-        "color_scheme": "3",
-        "full_width": true,
-        "dividers": "border-top",
-        "prevent_animation": true
+        "dividers": "border-top"
       }
     }
   },
   "order": [
     "announcement",
     "header",
-    "promo-strip",
-    "818919f7-1c89-4afb-b11d-f1f9d6e81bcf",
-    "b3a6f1db-a0fd-4075-8742-9eb42e1b3ae9"
+    "promo-strip"
   ]
 }

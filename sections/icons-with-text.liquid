@@ -1,5 +1,10 @@
 {%- if section.blocks.size > 0 -%}
-  <link rel="stylesheet" href="{{ 'icons-with-text.css' | asset_url }}">
+  {%- if section.index > 2 and section.location != "header" -%}
+    <link rel="stylesheet" href="{{ 'icons-with-text.css' | asset_url }}" media="print" onload="this.media='all'">
+  {%- else -%}
+    {{ 'icons-with-text.css' | asset_url | stylesheet_tag }}
+  {%- endif -%}
+
   {%- liquid
     assign color_scheme = section.settings.color_scheme
     assign grid_classes = 'auto-cols-1'
@@ -22,7 +27,7 @@
         <h2 class="h4 section__heading {{ section.settings.heading_align }}"{% if settings.animations_enabled != "disabled" and section.settings.prevent_animation == false %} data-cc-animate{% endif %}>{{ section.settings.heading | escape }}</h2>
       {%- endif -%}
 
-      <carousel-slider class="carousel block relative" inactive>
+      <carousel-slider class="carousel block relative" inactive{% if section.settings.mobile_stack %} disable-mobile="true"{% endif %}>
         <div class="slider-nav slide-nav--inline flex justify-between absolute top-0 h-full no-js-hidden">
           <button type="button" class="slider-nav__btn tap-target tap-target--left btn text-current has-ltr-icon" name="prev" aria-controls="slider-{{ section.id }}">
             <span class="visually-hidden">{{ 'general.slider.previous' | t }}</span>
@@ -35,7 +40,7 @@
         </div>
 
         <div class="slider slider--contained relative slider--no-scrollbar" id="slider-{{ section.id }}">
-          <ul class="slider__grid grid grid-flow-col gap-x-theme {{ grid_classes }}">
+          <ul class="slider__grid grid grid-flow-col gap-theme {{ grid_classes }}">
             {%- for block in section.blocks -%}
               {%- liquid
                 assign is_link = true
@@ -43,9 +48,9 @@
                   assign is_link = false
                 endif
               -%}
-              <li class="slider__item{% unless is_link %} flex{% if section.settings.icon_position == 'above' %} flex-col justify-center{% endif %} justify-center items-center{% endunless %}" {{ block.shopify_attributes }}{% if settings.animations_enabled != "disabled" and section.settings.prevent_animation == false %} data-cc-animate data-cc-animate-delay="{{ forloop.index | times: 0.07 }}s"{% endif %}>
+              <li class="slider__item{% unless is_link %} flex{% if section.settings.icon_position == 'above' %} flex-col{% endif %} justify-center items-center{% endunless %}" {{ block.shopify_attributes }}{% if settings.animations_enabled != "disabled" and section.settings.prevent_animation == false %} data-cc-animate data-cc-animate-delay="{{ forloop.index | times: 0.07 }}s"{% endif %}>
                 {% if is_link %}
-                <a class="text-current flex h-full{% if section.settings.icon_position == 'above' %} flex-col justify-center{% endif %} justify-center items-center" href="{{ block.settings.link.url }}">
+                <a class="text-current flex h-full{% if section.settings.icon_position == 'above' %} flex-col{% endif %} justify-center items-center" href="{{ block.settings.link.url }}">
                 {% endif %}
 
                 {%- if block.settings.custom_icon != blank -%}
@@ -59,13 +64,15 @@
                 {%- endif -%}
 
                 {% unless block.settings.heading == blank and block.settings.text == blank %}
-                  <div class="icons-with-text__text rte{% if section.settings.icon_position == 'above' %} mt-2 text-center{% endif %}">
+                  <div class="icons-with-text__text rte{% if section.settings.icon_position == 'above' %} mt-2 text-center icons-with-text__text--icons-above{% endif %}">
                     {%- if block.settings.heading != blank -%}
-                      <p class="m-0"><strong>{{ block.settings.heading | escape }}</strong></p>
+                      <p class="m-0 icons-with-text__title text-body-{{ section.settings.title_type_scale }}"><strong>{{ block.settings.heading | escape }}</strong></p>
                     {%- endif -%}
 
                     {%- if block.settings.text != blank -%}
-                      {{ block.settings.text }}
+                      <div class="rte text-body-{{ section.settings.text_type_scale }}">
+                        {{ block.settings.text }}
+                      </div>
                     {%- endif -%}
                   </div>
                 {% endunless %}
@@ -123,20 +130,80 @@
     },
     {
       "type": "header",
-      "content": "Layout"
+      "content": "Appearance"
     },
     {
       "type": "range",
       "id": "icon_size",
       "min": 24,
-      "max": 48,
+      "max": 104,
       "step": 4,
       "unit": "px",
       "label": "Icon size",
       "default": 48
     },
     {
-      "type": "radio",
+      "type": "select",
+      "id": "title_type_scale",
+      "label": "Title size",
+      "options": [
+        {
+          "value": "extra_small",
+          "label": "Extra small"
+        },
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        },
+        {
+          "value": "extra_large",
+          "label": "Extra large"
+        }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "select",
+      "id": "text_type_scale",
+      "label": "Text size",
+      "options": [
+        {
+          "value": "extra_small",
+          "label": "Extra small"
+        },
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        },
+        {
+          "value": "extra_large",
+          "label": "Extra large"
+        }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
       "id": "icon_position",
       "label": "Icon position",
       "options": [
@@ -150,6 +217,12 @@
         }
       ],
       "default": "beside"
+    },
+    {
+      "id": "mobile_stack",
+      "type": "checkbox",
+      "label": "Stack on mobile",
+      "default": false
     },
     {
       "type": "select",
@@ -301,6 +374,10 @@
               "label": "Dryer"
             },
             {
+              "value": "email",
+              "label": "Email"
+            },
+            {
               "value": "eye",
               "label": "Eye"
             },
@@ -343,6 +420,10 @@
             {
               "value": "percent",
               "label": "Percent"
+            },
+            {
+              "value": "phone",
+              "label": "Phone"
             },
             {
               "value": "plane",
@@ -403,7 +484,7 @@
         {
           "type": "text",
           "id": "heading",
-          "label": "Text",
+          "label": "Title",
           "default": "Item heading"
         },
         {

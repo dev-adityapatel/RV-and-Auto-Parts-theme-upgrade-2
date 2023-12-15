@@ -11,11 +11,12 @@ if (!customElements.get('country-province-selector')) {
     init() {
       CountryProvinceSelector.setSelectedOption(this.countryEl, this.countryEl.dataset.default);
 
+      this.handleCountryChange();
+
       if (this.provinceEl.dataset.default && this.provinceEl.options.length > 0) {
         CountryProvinceSelector.setSelectedOption(this.provinceEl, this.provinceEl.dataset.default);
       }
 
-      this.handleCountryChange();
       this.countryEl.addEventListener('change', this.handleCountryChange.bind(this));
     }
 

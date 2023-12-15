@@ -10,8 +10,6 @@
     {%- unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless -%}
   {%- endif -%}
 </title>
-<link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
-<link rel="preconnect" href="https://fonts.shopify.com" crossorigin>
 
 {%- if canonical_url != blank -%}
   <link rel="canonical" href="{{ canonical_url }}">
@@ -25,6 +23,7 @@
     endif
   -%}
   <link rel="icon" href="{{ settings.favicon | image_url: width: 48, height: 48 }}" type="image/{{ image_type }}">
+  <link rel="apple-touch-icon" href="{{ settings.favicon | image_url: width: 180, height: 180 }}">
 {%- endif -%}
 
 {%- if page_description -%}

@@ -1,5 +1,10 @@
-<link rel="stylesheet" href="{{ 'slideshow.css' | asset_url }}">
-<link rel="stylesheet" href="{{ 'text-overlay.css' | asset_url }}">
+{%- if section.index > 2 -%}
+  <link rel="stylesheet" href="{{ 'slideshow.css' | asset_url }}" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="{{ 'text-overlay.css' | asset_url }}" media="print" onload="this.media='all'">
+{%- else -%}
+  {{ 'slideshow.css' | asset_url | stylesheet_tag }}
+  {{ 'text-overlay.css' | asset_url | stylesheet_tag }}
+{%- endif -%}
 
 {%- if section.blocks.size > 1 -%}
   <script src="{{ 'slideshow.js' | asset_url }}" defer="defer"></script>
@@ -46,6 +51,10 @@
     {%- endif -%}
   }
 
+  #{{ section.id }} .slideshow-ctrl {
+    --text-color: {{ section.settings.pagination_color.red }} {{ section.settings.pagination_color.green }} {{ section.settings.pagination_color.blue }};
+  }
+
   {%- if section.settings.height_mode == 'fixed' -%}
     {%- if section.settings.mobile_stacked -%}
       @media (max-width: {{ breakpoint_sm_down }}px) {
@@ -70,6 +79,7 @@
       else
         assign img_padding = '56.25%'
       endif
+
       if section.blocks.first.settings.image_mobile != blank
         assign m_img_padding = 1 | divided_by: section.blocks.first.settings.image_mobile.aspect_ratio | times: 100 | append: '%'
       else
@@ -88,6 +98,11 @@
           content: '';
           padding-top: 0;
         }
+      }
+    {%- elsif section.blocks.first.settings.image_mobile != blank -%}
+      @media (max-width: {{ breakpoint_sm }}px) {
+        #{{ section.id }} .image-banner::after,
+        #{{ section.id }} .media::after { content: ''; padding-top: {{ m_img_padding }}; }
       }
     {%- endif -%}
   {%- endif -%}
@@ -112,63 +127,97 @@
           assign m_img = block.settings.image_mobile
           assign overlay_position = block.settings.overlay_position | split: ' '
           assign lazy_load = true
-          if forloop.first and section.settings.prevent_animation
-            assign lazy_load = false
+          if forloop.first
+            if section.index == 1 or section.settings.prevent_animation
+              assign lazy_load = false
+            endif
+          endif
+
+          if color_scheme == "white"
+            assign brightness = block.settings.transparent_content_color | color_brightness
+            assign alpha = block.settings.transparent_content_color | color_extract: 'alpha'
+            if brightness < 190 and alpha > 0
+              assign transparent_text_contrast = "255 255 255"
+              assign transparent_hover_color = block.settings.transparent_content_color | color_lighten: 10
+            else
+              assign transparent_text_contrast = "0 0 0"
+              assign transparent_hover_color = block.settings.transparent_content_color | color_darken: 10
+            endif
           endif
         -%}
-        <div class="slideshow__slide{% if forloop.first %} is-active{% endif %} image-banner flex w-full {{ overlay_position | last }} {{ section.settings.height_mode }}-height" id="{{ section.id }}_{{ forloop.index }}"
+
+        {%- if color_scheme == "white" -%}
+          {%- capture style -%}
+            --color-scheme-white-text: {{ block.settings.transparent_content_color.red }} {{ block.settings.transparent_content_color.green }} {{ block.settings.transparent_content_color.blue }};
+            --color-scheme-white-hover: {{ transparent_hover_color.red }} {{ transparent_hover_color.green }} {{ transparent_hover_color.blue }};
+            --color-scheme-white-text-contrast: {{ transparent_text_contrast }};
+          {%- endcapture -%}
+        {%- endif -%}
+
+        <div class="slideshow__slide{% if section.blocks.size == 1 %} slideshow__slide--no-pagination{% endif %}{% if forloop.first %} is-active{% endif %} image-banner flex w-full {{ overlay_position | last }} {{ section.settings.height_mode }}-height{% if color_scheme == "white" %} color-scheme color-scheme--white{% endif %}" id="{{ section.id }}_{{ forloop.index }}"
              role="group" aria-roledescription="{{ 'sections.slideshow.slide' | t }}"
              aria-label="{{ forloop.index }} {{ 'general.slider.of' | t }} {{ forloop.length }}"
+             {% if style %}style="{{ style }}"{% endif %}
              {%- unless forloop.first %}tabindex="-1"{% endunless %}
              {%- if request.design_mode %}data-index="{{ forloop.index0 }}"{% endif %}
              {{ block.shopify_attributes }}>
 
-          <div class="image-banner__image media media--has-overlay absolute top-0 left-0 w-full h-full has-motion">
-            {%- if img != blank -%}
-              {%- liquid
-                if section.settings.full_width
-                  if section.settings.height_mode == 'screen'
-                    assign sizes = '(max-aspect-ratio: 1/2) 50vh, 100vw'
-                  endif
-                else
-                  capture sizes
-                    render 'sizes-attribute'
-                  endcapture
+          {%- if block.settings.url != blank -%}
+            <a href="{{ block.settings.url }}" class="image-banner__image media media--has-overlay block absolute top-0 left-0 w-full h-full has-motion">
+          {%- else -%}
+            <div class="image-banner__image media media--has-overlay absolute top-0 left-0 w-full h-full has-motion">
+          {%- endif -%}
+
+          {%- if img != blank -%}
+            {%- liquid
+              if section.settings.full_width
+                if section.settings.height_mode == 'screen'
+                  assign sizes = '(max-aspect-ratio: 1/2) 50vh, 100vw'
                 endif
+              else
+                capture sizes
+                  render 'sizes-attribute'
+                endcapture
+              endif
 
-                if m_img != blank
-                  assign desktop_image_class = 'img-fit hidden sm:block'
-                else
-                  assign desktop_image_class = 'img-fit'
-                endif
-              -%}
+              if m_img != blank
+                assign desktop_image_class = 'img-fit hidden sm:block'
+              else
+                assign desktop_image_class = 'img-fit'
+              endif
+            -%}
 
-              {%- if m_img != blank -%}
-                {%- render 'image',
-                  image: m_img,
-                  widths: '480, 980, 1200, 1400',
-                  src_width: 980,
-                  src_placeholder: true,
-                  sizes: sizes,
-                  class: 'img-fit sm:hidden',
-                  lazy_load: lazy_load
-                -%}
-              {%- endif -%}
-
+            {%- if m_img != blank -%}
               {%- render 'image',
-                image: img,
-                widths: '1200, 1400, 1600, 1920, 2560, 3200',
-                src_width: 1400,
+                image: m_img,
+                widths: '480, 980, 1200, 1400',
+                src_width: 980,
                 src_placeholder: true,
                 sizes: sizes,
-                quality: 1,
-                class: desktop_image_class,
+                class: 'img-fit sm:hidden',
                 lazy_load: lazy_load
               -%}
-            {%- else -%}
-              {{ 'lifestyle-2' | placeholder_svg_tag: 'media__placeholder img-fit' }}
             {%- endif -%}
-          </div>
+
+            {%- render 'image',
+              image: img,
+              widths: '480, 980, 1200, 1400, 1600, 1920, 2560, 3200',
+              src_width: 1400,
+              src_placeholder: true,
+              sizes: sizes,
+              quality: 1,
+              class: desktop_image_class,
+              lazy_load: lazy_load
+            -%}
+          {%- else -%}
+            {{ 'lifestyle-2' | placeholder_svg_tag: 'media__placeholder img-fit' }}
+          {%- endif -%}
+
+          {%- if block.settings.url != blank -%}
+            </a>
+          {%- else -%}
+            </div>
+          {%- endif -%}
 
           {%- if block.settings.heading != blank or block.settings.subheading != blank or block.settings.text != blank or block.settings.button_1_label != blank or block.settings.button_2_label != blank -%}
             <div class="slideshow__text container flex {{ overlay_position | first }}{% if block.settings.mob_center_text %} md-down:center{% endif %}{% unless bg_color %}{% if section.settings.full_width or section.settings.mobile_stacked %} md-down:p-xl{% endif %}{% endunless %}"{% if settings.animations_enabled != "disabled" and section.settings.prevent_animation == false %} data-cc-animate{% endif %}>
@@ -340,7 +389,7 @@
       "type": "range",
       "id": "fixed_height_desktop",
       "min": 400,
-      "max": 750,
+      "max": 1000,
       "step": 10,
       "unit": "px",
       "label": "Minimum fixed height on large screens",
@@ -374,7 +423,7 @@
       "options": [
         {
           "value": "arrows",
-          "label": "Arrows and numbers"
+          "label": "Arrows"
         },
         {
           "value": "slideshow_nav_dots",
@@ -386,6 +435,12 @@
         }
       ],
       "default": "slideshow_nav_lines"
+    },
+    {
+      "type": "color",
+      "id": "pagination_color",
+      "label": "Pagination color",
+      "default": "#ffffff"
     },
     {
       "type": "select",
@@ -458,10 +513,11 @@
       "type": "select",
       "id": "color_scheme",
       "label": "Color scheme",
+      "info": "When \"Transparent background\" is chosen, the text color can be set in each slide.",
       "options": [
         {
           "value": "white",
-          "label": "White"
+          "label": "Transparent background"
         },
         {
           "value": "default",
@@ -541,13 +597,18 @@
           "info": "For best results, use a square or portrait shaped image. If no mobile image is provided, the large screen image will be used."
         },
         {
+          "type": "url",
+          "id": "url",
+          "label": "Image link (optional)"
+        },
+        {
           "type": "header",
           "content": "Text overlay"
         },
         {
           "type": "select",
           "id": "overlay_position",
-          "label": "Overlay position",
+          "label": "Text position",
           "options": [
             {
               "value": "justify-start items-start",
@@ -744,6 +805,13 @@
             }
           ],
           "default": "btn btn--primary"
+        },
+        {
+          "type": "color",
+          "id": "transparent_content_color",
+          "label": "Text color",
+          "info": "Only applies when the \"Transparent background\" color scheme is chosen.",
+          "default": "#ffffff"
         },
         {
           "type": "header",

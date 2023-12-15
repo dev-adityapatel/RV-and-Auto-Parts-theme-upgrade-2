@@ -111,8 +111,8 @@
           "settings": {
             "style": "collapsible",
             "show_description": true,
-            "show_specification": true,
             "show_reviews": true,
+            "show_specification": true,
             "spec_right_align": true,
             "spec_show_empty_metafields": false
           }

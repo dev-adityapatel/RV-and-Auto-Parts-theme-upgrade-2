@@ -1,11 +1,28 @@
 {%- comment -%}
   Build: lg:col-span-1 lg:col-span-2 lg:col-span-3 lg:col-span-4 row-span-2 row-span-3
 {%- endcomment -%}
-<link rel="stylesheet" href="{{ 'gallery.css' | asset_url }}">
+
+{%- if section.index > 2 -%}
+  <link rel="stylesheet" href="{{ 'gallery.css' | asset_url }}" media="print" onload="this.media='all'">
+
+  {%- if section.settings.mobile_carousel -%}
+    <link rel="stylesheet" href="{{ 'gallery-mobile-carousel.css' | asset_url }}" media="print" onload="this.media='all'">
+  {%- endif -%}
+{%- else -%}
+  {{ 'gallery.css' | asset_url | stylesheet_tag }}
+
+  {%- if section.settings.mobile_carousel -%}
+    {{ 'gallery-mobile-carousel.css' | asset_url | stylesheet_tag }}
+  {%- endif -%}
+{%- endif -%}
 
 {%- for block in section.blocks -%}
   {%- if block.settings.video_shopify != blank -%}
-    <link rel="stylesheet" href="{{ 'video.css' | asset_url }}">
+    {%- if section.index > 2 -%}
+      <link rel="stylesheet" href="{{ 'video.css' | asset_url }}" media="print" onload="this.media='all'">
+    {%- else -%}
+      {{ 'video.css' | asset_url | stylesheet_tag }}
+    {%- endif -%}
     <script src="{{ 'video.js' | asset_url }}" defer="defer"></script>
     {%- break -%}
   {%- endif -%}
@@ -55,7 +72,7 @@
   {% endfor %}
 
   #{{ section.id }} .gallery-block { min-height: {{ section.settings.fixed_height_mobile }}px; }
-  #{{ section.id }} .gallery-block.row-span-2, #{{ section.id }} .gallery-block.row-span-3 { min-height: {{ section.settings.fixed_height_mobile | times: 1.75 }}px; }
+  {% unless section.settings.mobile_carousel %}#{{ section.id }} .gallery-block.row-span-2, #{{ section.id }} .gallery-block.row-span-3 { min-height: {{ section.settings.fixed_height_mobile | times: 1.75 }}px; }{% endunless %}
 
   @media (min-width: {{ breakpoint_md }}px) {
     #{{ section.id }} .gallery-block { min-height: calc({{ section.settings.fixed_height_desktop }}px + 8vw); }
@@ -81,6 +98,8 @@
     </div>
   {%- endif -%}
 
+  {% if section.settings.mobile_carousel %}<div class="gallery-mobile-carousel">{% endif %}
+
   <div class="container" id="{{ section.id }}">
     <div class="gallery grid {{ grid_classes }}">
       {%- for block in section.blocks -%}
@@ -92,7 +111,7 @@
             assign is_link = false
           endif
         -%}
-        {% if is_link %}<a href="{{ block.settings.link_url }}" {% else %}<div {% endif %}class="block-{{ block.id }} block relative flex flex-col gallery-block{% if section.settings.gallery_cols_min == '2' and block.settings.columns >= 2 %} md-down:col-span-2{% endif %} row-span-{{ block.settings.rows }} lg:col-span-{{ block.settings.columns }} {% if is_link %} hover:grow-media{% endif %}" {%- unless forloop.first %}tabindex="-1"{% endunless %} {{ block.shopify_attributes }}>
+        {% if is_link %}<a href="{{ block.settings.link_url }}" {% else %}<div {% endif %}class="block-{{ block.id }} block relative flex flex-col gallery-block{% unless section.settings.mobile_carousel %} gallery-block--stacked{% endunless %}{% if section.settings.gallery_cols_min == '2' and block.settings.columns >= 2 %} md-down:col-span-2{% endif %} row-span-{{ block.settings.rows }} lg:col-span-{{ block.settings.columns }} {% if is_link %} hover:grow-media{% endif %}" {%- unless forloop.first %}tabindex="-1"{% endunless %} {{ block.shopify_attributes }}>
 
             <div class="gallery-block__image{% if block.settings.video_shopify != blank %} video-section{% endif %} overflow-hidden flex relative w-full h-full {{ overlay_position | first }} {{ overlay_position | last }}{% if is_link %} card__media{% endif %}">
               <div class="media media--has-overlay flex absolute top-0 left-0 w-full h-full has-motion">
@@ -100,11 +119,12 @@
                   {%- capture sizes %}{% render 'sizes-attribute', grid: true, min: section.settings.gallery_cols_min, sm: block.settings.columns %}{% endcapture -%}
                   {% render 'image',
                     image: img,
-                    widths: '400, 800, 1200, 1400',
+                    widths: '480, 800, 980',
                     src_width: 800,
                     src_placeholder: true,
                     sizes: sizes,
                     quality: 1,
+                    section_index: section.index,
                     class: 'img-fit'
                   %}
                 {%- else -%}
@@ -113,13 +133,15 @@
               </div>
 
               {%- if block.settings.video_shopify != blank -%}
-                <div class="video-section__media media media--has-overlay overflow-hidden absolute top-0 left-0 w-full h-full">
-                  <video-component class="has-iframe absolute top-0 left-0 w-full h-full no-js-hidden"
-                                  data-autoplay="true"
-                                  data-background="true">
-                    {{ block.settings.video_shopify | video_tag: class: 'img-fit pointer-events-none', playsinline: true, autoplay: true, muted: true, loop: true, controls: false, poster: '' | replace: '<img ', '<img loading="lazy" hidden ' }}
-                  </video-component>
-                </div>
+                <deferred-media class="video-section__media media media--has-overlay overflow-hidden absolute top-0 left-0 w-full h-full">
+                  <template>
+                    <video-component class="has-iframe absolute top-0 left-0 w-full h-full no-js-hidden"
+                                    data-autoplay="true"
+                                    data-background="true">
+                      {{ block.settings.video_shopify | video_tag: class: 'img-fit pointer-events-none', playsinline: true, autoplay: true, muted: true, loop: true, controls: false, poster: '' | replace: '<img ', '<img loading="lazy" hidden ' }}
+                    </video-component>
+                  </template>
+                </deferred-media>
               {%- endif -%}
 
               {%- if block.settings.line1_text != blank or block.settings.line2_text != blank or block.settings.line3_text != blank -%}
@@ -163,6 +185,8 @@
       {%- endfor -%}
     </div>
   </div>
+
+  {% if section.settings.mobile_carousel %}</div>{% endif %}
 </div>
 
 {% schema %}
@@ -225,9 +249,16 @@
       "default": 4
     },
     {
-      "type": "radio",
+      "type": "checkbox",
+      "id": "mobile_carousel",
+      "label": "Show as a carousel on mobile",
+      "default": false
+    },
+    {
+      "type": "select",
       "id": "gallery_cols_min",
       "label": "Minimum columns on mobile",
+      "info": "Only applies when a carousel is not used on mobile.",
       "options": [
         {
           "value": "1",
@@ -265,7 +296,7 @@
       "content": "Style"
     },
     {
-      "type": "radio",
+      "type": "select",
       "id": "text_overlay_font",
       "label": "Text overlay font",
       "options": [
@@ -493,7 +524,7 @@
         {
           "type": "select",
           "id": "overlay_position",
-          "label": "Overlay position",
+          "label": "Text position",
           "options": [
             {
               "value": "justify-start items-start",

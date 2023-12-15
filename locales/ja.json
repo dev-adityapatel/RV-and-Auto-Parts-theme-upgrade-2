@@ -27,7 +27,9 @@
       "label": "ページ付け",
       "next": "次",
       "previous": "前",
-      "position": "ページ {{ current_page }} \/ {{ total_pages }}"
+      "position": "ページ {{ current_page }} \/ {{ total_pages }}",
+      "position_results": "{{ total_results }} 件中 {{ visible_results }} 件を表示",
+      "show_more": "さらに表示"
     },
     "search": {
       "title": "検索",
@@ -38,8 +40,10 @@
       "products": "商品",
       "collections": "コレクション",
       "pages": "ページ",
+      "queries": "提案",
       "articles": "記事",
-      "view_all": "すべての検索結果を表示"
+      "view_all": "すべての検索結果を表示",
+      "all_product_types": "すべて"
     },
     "slider": {
       "next": "次",
@@ -49,8 +53,9 @@
     "social": {
       "share_heading": "共有",
       "share_on_facebook": "Facebookで共有",
-      "share_on_twitter": "Twitterでツイート",
-      "share_on_pinterest": "Pinterestでピン付け"
+      "share_on_twitter": "Xでツイート",
+      "share_on_pinterest": "Pinterestでピン付け",
+      "follow_shop": "{{ social_platform }}で{{ shop_name }}"
     },
     "meta": {
       "page": "ページ {{ page }}",
@@ -83,6 +88,7 @@
       "added_to_cart": "カートに追加されました。",
       "awaiting_sale": "この商品はまだ購入できません。",
       "backorder": "...は取り寄せ中で入荷次第発送します。",
+      "barcode": "バーコード:",
       "choose_options": "オプションを選択",
       "description": "説明",
       "from": "下限",
@@ -138,6 +144,7 @@
       "value_reduction_up_to_html": "最大{{ amount }}割引",
       "vendor": "作成者",
       "view_details": "詳細を表示",
+      "weight": "重さ",
       "xr_button": "自分のスペースで表示"
     },
     "filtering": {
@@ -168,6 +175,7 @@
       "low_stock": "在庫少なめ",
       "very_low_stock": "在庫僅少",
       "only_x_left": "{{ quantity }}点在庫",
+      "backordered": "入荷待ち",
       "available_count": {
         "one": "{{ count }}ユニット",
         "other": "{{ count }}ユニット"
@@ -515,6 +523,14 @@
       "add_to_apple_wallet": "Appleウォレットに追加",
       "shop_link": "ショッピングを開始",
       "print": "印刷"
+    },
+    "recipient": {
+      "checkbox": "ギフトとしてこれを送る",
+      "email_label_optional": "受信者のメール",
+      "email_label_required": "受信者のメール *",
+      "name_label": "受信者の名前",
+      "message_label": "メッセージ",
+      "max_characters": "最大{{ max_chars }}文字"
     }
   },
   "onboarding": {

@@ -1,5 +1,10 @@
 {% if section.blocks.size > 0 %}
-  {{ 'promo-strip.css' | asset_url | stylesheet_tag }}
+  {%- if section.index > 2 and section.location != "header" -%}
+    <link rel="stylesheet" href="{{ 'promo-strip.css' | asset_url }}" media="print" onload="this.media='all'">
+  {%- else -%}
+    {{ 'promo-strip.css' | asset_url | stylesheet_tag }}
+  {%- endif -%}
+
   {%- assign color_scheme = section.settings.color_scheme -%}
 
   {%- unless section.settings.full_width -%}

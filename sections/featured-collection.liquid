@@ -1,57 +1,103 @@
-{{ 'featured-collection.css' | asset_url | stylesheet_tag }}
+{%- if section.index > 2 -%}
+  <link rel="stylesheet" href="{{ 'featured-collection.css' | asset_url }}" media="print" onload="this.media='all'">
+{%- else -%}
+  {{ 'featured-collection.css' | asset_url | stylesheet_tag }}
+{%- endif -%}
+
 {%- if settings.enable_quick_add -%}
   <link rel="stylesheet" href="{{ 'quick-add.css' | asset_url }}" media="print" onload="this.media='all'">
   <link rel="stylesheet" href="{{ 'product.css' | asset_url }}" media="print" onload="this.media='all'">
   <script src="{{ 'quick-add.js' | asset_url }}" defer="defer"></script>
   <script src="{{ 'variant-picker.js' | asset_url }}" defer="defer"></script>
   <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'custom-select.js' | asset_url }}" defer="defer"></script>
 {%- endif -%}
 
 {%- liquid
   assign collection = section.settings.collection
+
+  assign carousel_desktop_small_promo = ' sm:auto-cols-3 md:auto-cols-2 lg:auto-cols-3 xl:auto-cols-4 small-cards-desktop'
+  assign carousel_desktop_medium_promo = ' sm:auto-cols-2 lg:auto-cols-3'
+  assign carousel_desktop_large_promo = ' sm:auto-cols-2'
+  assign carousel_desktop_small = ' md:auto-cols-3 lg:auto-cols-4 xl:auto-cols-5 small-cards-desktop'
+  assign carousel_desktop_medium = ' sm:auto-cols-3 xl:auto-cols-4'
+  assign carousel_desktop_large = ' sm:auto-cols-2 lg:auto-cols-3'
+
+  assign grid_desktop_small_promo = ' sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 small-cards-desktop'
+  assign grid_desktop_medium_promo = ' md:grid-cols-2 lg:grid-cols-3'
+  assign grid_desktop_large_promo = ' sm:grid-cols-2'
+  assign grid_desktop_small = ' md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 small-cards-desktop'
+  assign grid_desktop_medium = ' sm:grid-cols-3 xl:grid-cols-4'
+  assign grid_desktop_large = ' sm:grid-cols-2 lg:grid-cols-3'
+
+  if section.settings.card_size_mobile == 'small'
+    assign carousel_mobile_cols = 'grid-flow-col auto-cols-2 small-cards-mobile'
+    assign grid_mobile_cols = 'grid-cols-2 small-cards-mobile'
+  else
+    assign carousel_mobile_cols = 'grid-flow-col auto-cols-1'
+    assign grid_mobile_cols = 'grid-cols-1'
+  endif
 
   if section.settings.layout == 'carousel'
     assign carousel = true
 
     if section.settings.show_promo_info
       if section.settings.card_size == 'small'
-        assign grid_classes = 'grid-flow-col auto-cols-2 sm:auto-cols-3 md:auto-cols-2 lg:auto-cols-3 xl:auto-cols-4'
+        assign grid_classes = carousel_mobile_cols | append: carousel_desktop_small_promo
       elsif section.settings.card_size == 'medium'
-        assign grid_classes = 'grid-flow-col auto-cols-1 sm:auto-cols-2 lg:auto-cols-3'
+        assign grid_classes = carousel_mobile_cols | append: carousel_desktop_medium_promo
       else
-        assign grid_classes = 'grid-flow-col auto-cols-1 sm:auto-cols-2'
+        assign grid_classes = carousel_mobile_cols | append: carousel_desktop_large_promo
       endif
     else
       if section.settings.card_size == 'small'
-        assign grid_classes = 'grid-flow-col auto-cols-2 md:auto-cols-3 lg:auto-cols-4 xl:auto-cols-5'
+        assign grid_classes = carousel_mobile_cols | append: carousel_desktop_small
       elsif section.settings.card_size == 'medium'
-        assign grid_classes = 'grid-flow-col auto-cols-1 sm:auto-cols-3 xl:auto-cols-4'
+        assign grid_classes = carousel_mobile_cols | append: carousel_desktop_medium
       else
-        assign grid_classes = 'grid-flow-col auto-cols-1 sm:auto-cols-2 lg:auto-cols-3'
+        assign grid_classes = carousel_mobile_cols | append: carousel_desktop_large
       endif
     endif
+  elsif section.settings.layout == 'carousel_on_mobile'
+    assign carousel = true
 
-  else
+    if section.settings.show_promo_info
+      if section.settings.card_size == 'small'
+        assign grid_classes = carousel_mobile_cols | append: grid_desktop_small_promo
+      elsif section.settings.card_size == 'medium'
+        assign grid_classes = carousel_mobile_cols | append: grid_desktop_medium_promo
+      else
+        assign grid_classes = carousel_mobile_cols | append: grid_desktop_large_promo
+      endif
+    else
+      if section.settings.card_size == 'small'
+        assign grid_classes = carousel_mobile_cols | append: grid_desktop_small
+      elsif section.settings.card_size == 'medium'
+        assign grid_classes = carousel_mobile_cols | append: grid_desktop_medium
+      else
+        assign grid_classes = carousel_mobile_cols | append: grid_desktop_large
+      endif
+    endif
+  elsif section.settings.layout == 'grid'
     assign carousel = false
 
     if section.settings.show_promo_info
       if section.settings.card_size == 'small'
-        assign grid_classes = 'grid-cols-2 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+        assign grid_classes = grid_mobile_cols | append: grid_desktop_small_promo
       elsif section.settings.card_size == 'medium'
-        assign grid_classes = 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+        assign grid_classes = grid_mobile_cols | append: grid_desktop_medium_promo
       else
-        assign grid_classes = 'grid-cols-1 sm:grid-cols-2'
+        assign grid_classes = grid_mobile_cols | append: grid_desktop_large_promo
       endif
     else
       if section.settings.card_size == 'small'
-        assign grid_classes = 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'
+        assign grid_classes = grid_mobile_cols | append: grid_desktop_small
       elsif section.settings.card_size == 'medium'
-        assign grid_classes = 'grid-cols-1 sm:grid-cols-3 xl:grid-cols-4'
+        assign grid_classes = grid_mobile_cols | append: grid_desktop_medium
       else
-        assign grid_classes = 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+        assign grid_classes = grid_mobile_cols | append: grid_desktop_large
       endif
     endif
-
   endif
 
   if settings.prod_card_image_ratio == 'shortest'
@@ -108,12 +154,12 @@
   {%- endif -%}
 
   {%- if section.settings.show_promo_info -%}
-    <div class="featured-collection-container relative w-full mx-auto">
+    <div class="featured-collection-container relative w-full mx-auto"{% if section.settings.image_ratio == 'fill' and section.settings.layout != 'carousel' and section.settings.image %} data-css-var-height=".card--product"{% endif %}>
       <div class="flex flex-col md:flex-row">
 
         <div class="featured-collection-info mb-6 md:mb-0 flex shrink-0 flex-col{% if section.settings.layout == 'carousel' %} featured-collection-info--carousel items-stretch{% endif %}"{% if settings.animations_enabled != "disabled" %}data-cc-animate{% endif %}>
-          {%- if section.settings.layout == 'grid' -%}
-            <div class="featured-collection--sticky">
+          {%- if section.settings.layout == 'grid' or section.settings.layout == 'carousel_on_mobile' -%}
+            <div class="featured-collection--sticky{% if section.settings.image_ratio == 'fill' and section.settings.layout != 'carousel' and section.settings.image %} featured-collection--sticky-fill flex flex-col{% endif %}">
           {% endif %}
 
             {% if section.settings.image %}
@@ -124,14 +170,14 @@
               endif
 
               assign image_fill = false
-              if section.settings.image_ratio == "fill" and section.settings.layout == 'carousel'
+              if section.settings.image_ratio == "fill"
                 assign image_fill = true
               endif
             -%}
 
             <div class="featured-collection-image{% if image_fill %} h-full{% endif %}">
               {% if section.settings.link_url %}
-                <a href="{{ section.settings.link_url }}" aria-label="{{ section.settings.promo_title | escape }}" class="media block relative w-full{% if image_fill %} h-full{% if carousel %} md:pt-0{% endif %}{% endif %}" style="padding-top: {{ 1 | divided_by: image_ratio_int | times: 100 }}%;">
+                <a href="{{ section.settings.link_url }}" aria-label="{{ section.settings.promo_title | escape }}" class="media block relative w-full{% if image_fill %} h-full md:pt-0{% endif %}" style="padding-top: {{ 1 | divided_by: image_ratio_int | times: 100 }}%;">
               {%- else -%}
                 <div class="media relative w-full{% if image_fill %} h-full{% if carousel %} md:pt-0{% endif %}{% endif %}" style="padding-top: {{ 1 | divided_by: image_ratio_int | times: 100 }}%;">
               {%- endif -%}
@@ -172,27 +218,27 @@
               </div>
             {%- endif -%}
 
-          {%- if section.settings.layout == 'grid' -%}
+          {%- if section.settings.layout == 'grid' or section.settings.layout == 'carousel_on_mobile' -%}
             </div>
           {%- endif -%}
         </div>
       {%- endif -%}
 
       {%- if carousel -%}
-        <carousel-slider class="carousel block{% if section.settings.show_promo_info %} grow{% endif %}" inactive>
+        <carousel-slider class="carousel block{% if section.settings.show_promo_info %} grow{% endif %}" inactive{% if section.settings.layout == 'carousel_on_mobile' %} disable-desktop="true"{% endif %}>
           <div class="{% unless section.settings.show_promo_info %}container relative{% endunless %} featured-collection-products">
             <div class="slider" id="slider-{{ section.id }}">
             {%- endif -%}
 
             <div class="container products-grid-container shrink-0">
-              <ul class="{% if carousel %}slider__grid {% endif %}grid {{ grid_classes }} gap-x-theme gap-y-8{% if section.settings.card_size == 'small' and settings.card_contain %} small__grid{% endif %}" role="list">
+              <ul class="{% if carousel %}slider__grid {% endif %}grid {{ grid_classes }}{% if section.settings.layout == 'carousel_on_mobile' and section.settings.card_size_mobile == 'small' and settings.card_contain %} sm:gap-x-theme sm:gap-y-8{% else %} gap-x-theme gap-y-8{% endif %}{% if section.settings.card_size_mobile == 'small' and settings.card_contain %} small__grid{% endif %}" role="list">
                 {%- for product in collection.products limit: section.settings.products_to_show -%}
-                  <li {% if carousel %}class="slider__item"{% endif %}{% if settings.animations_enabled != "disabled" %}data-cc-animatedata-cc-animate-delay="{{ forloop.index | times: 0.07 }}s"{% endif %}>
+                  <li {% if carousel %}class="slider__item"{% endif %}{% if settings.animations_enabled != "disabled" %}data-cc-animate data-cc-animate-delay="{{ forloop.index | times: 0.07 }}s"{% endif %}>
                     {% render 'product-card', product: product, collection: collection, image_ratio: image_ratio %}
                   </li>
                 {%- else -%}
                   {%- for i in (1..section.settings.products_to_show) -%}
-                    <li {% if carousel %}class="slider__item"{% endif %}{% if settings.animations_enabled != "disabled" %}data-cc-animatedata-cc-animate-delay="{{ forloop.index | times: 0.07 }}s"{% endif %}>
+                    <li {% if carousel %}class="slider__item"{% endif %}{% if settings.animations_enabled != "disabled" %}data-cc-animate data-cc-animate-delay="{{ forloop.index | times: 0.07 }}s"{% endif %}>
                       {% render 'product-card', product: "", image_ratio: image_ratio %}
                     </li>
                   {%- endfor -%}
@@ -276,13 +322,17 @@
       "label": "Collection"
     },
     {
-      "type": "radio",
+      "type": "select",
       "id": "layout",
       "label": "Layout",
       "options": [
         {
           "value": "carousel",
           "label": "Carousel"
+        },
+        {
+          "value": "carousel_on_mobile",
+          "label": "Carousel on mobile"
         },
         {
           "value": "grid",
@@ -293,8 +343,24 @@
     },
     {
       "type": "select",
+      "id": "card_size_mobile",
+      "label": "Product card size on mobile",
+      "options": [
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "small"
+    },
+    {
+      "type": "select",
       "id": "card_size",
-      "label": "Product card size",
+      "label": "Product card size on large screens",
       "options": [
         {
           "value": "small",
@@ -317,7 +383,7 @@
       "label": "Maximum products to show",
       "min": 4,
       "max": 24,
-      "step": 2,
+      "step": 1,
       "default": 8
     },
     {

@@ -1,8 +1,7 @@
-{%- comment -%}theme-check-disable LiquidTag, NestedSnippet{%- endcomment -%}
+{%- comment -%}theme-check-disable LiquidTag, NestedSnippet, TemplateLength{%- endcomment -%}
 {%- comment -%}Build: bg-info-bg text-info-text{%- endcomment -%}
-
-<link rel="stylesheet" href="{{ 'product.css' | asset_url }}">
-<link rel="stylesheet" href="{{ 'product-page.css' | asset_url }}">
+{{ 'product.css' | asset_url | stylesheet_tag }}
+{{ 'product-page.css' | asset_url | stylesheet_tag }}
 
 {%- assign messages = section.blocks | where: "type", "message" -%}
 {%- if messages -%}
@@ -116,6 +115,11 @@
         <div class="product-info__sticky">
       {%- endif -%}
 
+      {%- assign has_variant_picker = false -%}
+      {%- if section.settings.sticky_atc_panel -%}
+        <a class="product-options--anchor" id="product-info" rel="nofollow"></a>
+      {%- endif -%}
+
       {%- for block in section.blocks -%}
         {%- case block.type -%}
           {%- when '@app' -%}
@@ -124,7 +128,7 @@
             </div>
 
           {%- when 'vendor-sku' -%}
-            {%- if block.settings.show_vendor or block.settings.show_sku -%}
+            {%- if block.settings.show_vendor or block.settings.show_sku or block.settings.show_barcode -%}
               <div class="product-info__block product-info__block--sm product-vendor-sku text-sm" {{ block.shopify_attributes }}>
                 {%- if block.settings.show_vendor and product.vendor != blank -%}
                   {%- liquid
@@ -138,11 +142,19 @@
                   <span class="product-vendor">{{ product.vendor | link_to: vendor_url }}</span>
                 {%- endif -%}
 
-                {%- if block.settings.show_sku and current_variant.sku != blank -%}
-                  <span class="product-sku">
+                {%- if block.settings.show_sku -%}
+                  <span class="product-sku"{% if current_variant.sku == blank %} hidden{% endif %}>
                     {%- if block.settings.show_vendor and product.vendor != blank %} &nbsp;|&nbsp; {% endif -%}
                     <span>{{ 'products.product.sku' | t }}</span>
                     <span class="product-sku__value">{{ current_variant.sku }}</span>
+                  </span>
+                {%- endif -%}
+
+                {%- if block.settings.show_barcode -%}
+                  <span class="product-info__barcode"{% if current_variant.barcode == blank %} hidden{% endif %}>
+                    {%- if block.settings.show_vendor or block.settings.show_sku %} &nbsp;|&nbsp; {% endif -%}
+                    <span>{{ 'products.product.barcode' | t }}</span>
+                    <span class="product-info__barcode-value">{% if current_variant.barcode %}{{ current_variant.barcode }}{% endif %}</span>
                   </span>
                 {%- endif -%}
               </div>
@@ -150,7 +162,30 @@
 
           {%- when 'title' -%}
             <div class="product-info__block product-info__block--sm product-info__title" {{ block.shopify_attributes }}>
-              <h1 class="product-title h5">{{ product.title | escape }}</h1>
+              <h1 class="product-title h5">
+                {{ product.title | escape }}
+
+                {% if block.settings.show_weight %}
+                  <span class="product-info__weight text-body-extra_small"{% unless current_variant.weight > 0 %} hidden{% endunless %}>
+                    {% if current_variant.weight > 0 %}
+                      {{ current_variant.weight | weight_with_unit: current_variant.weight_unit }}
+                    {% endif %}
+                  </span>
+                {% endif %}
+              </h1>
+            </div>
+
+          {%- when 'weight' -%}
+            <div class="product-info__block product-info__block--sm product-info__weight" {{ block.shopify_attributes }}{% unless current_variant.weight > 0 %} hidden{% endunless %}>
+              {% if current_variant.weight > 0 %}
+                {{ current_variant.weight | weight_with_unit: current_variant.weight_unit }}
+              {% endif %}
+            </div>
+
+          {%- when 'barcode' -%}
+            <div class="product-info__block product-info__block--sm product-info__barcode text-sm" {{ block.shopify_attributes }}{% if current_variant.barcode == blank %} hidden{% endif %}>
+              <span class="product-info-label">{{ 'products.product.barcode' | t }}</span>
+              <span class="product-info__barcode-value">{% if current_variant.barcode %}{{ current_variant.barcode }}{% endif %}</span>
             </div>
 
           {%- when 'price' -%}
@@ -190,11 +225,12 @@
             {%- endif -%}
 
           {%- when 'variant-picker' -%}
-            {%- if section.settings.sticky_atc_panel and product.available -%}
-              <a class="product-options--anchor" id="variants" rel="nofollow"></a>
-            {%- endif -%}
             {%- unless product.has_only_default_variant -%}
-              <div class="product-info__block product-options" {{ block.shopify_attributes }}>
+              {%- assign has_variant_picker = true -%}
+              {%- if section.settings.sticky_atc_panel and product.available -%}
+                <a class="product-options--anchor" id="variants" rel="nofollow"></a>
+              {%- endif -%}
+                <div class="product-info__block product-options" {{ block.shopify_attributes }}>
                 {% render 'variant-picker',
                   product: product,
                   product_form_id: product_form_id,
@@ -212,25 +248,35 @@
             {%- endif -%}
 
           {%- when 'inventory-status' -%}
-            {% render 'product-inventory', product: product, current_variant: current_variant, block: block %}
+            {%- if current_variant.inventory_management != blank -%}
+              {% render 'product-inventory', product: product, current_variant: current_variant, block: block %}
+            {%- endif -%}
 
           {%- when 'buy-buttons' -%}
             <div class="product-info__block" {{ block.shopify_attributes }}>
               <product-form>
                 <div class="alert mb-8 bg-error-bg text-error-text js-form-error text-start" role="alert" hidden></div>
                 {%- form 'product', product,
-                  class: 'js-product-form',
-                  id: product_form_id,
-                  novalidate: 'novalidate'
+                  class: 'js-product-form js-product-form-main',
+                  id: product_form_id
                 -%}
                   {%- liquid
+                    assign gift_card_recipient_feature_active = false
+                    if block.settings.show_gift_card_recipient and product.gift_card?
+                      assign gift_card_recipient_feature_active = true
+                    endif
+
                     assign enable_dynamic_checkout = false
-                    if block.settings.enable_dynamic_checkout and product.selling_plan_groups == empty
+                    if block.settings.enable_dynamic_checkout and product.selling_plan_groups == empty and gift_card_recipient_feature_active == false
                       unless product.template_suffix contains 'preorder'
                         assign enable_dynamic_checkout = true
                       endunless
                     endif
                   -%}
+
+                  {%- if gift_card_recipient_feature_active -%}
+                    {% render 'gift-card-recipient', section: section %}
+                  {%- endif -%}
 
                   <input type="hidden" name="id" value="{{ current_variant.id }}" disabled>
                   <div class="product-info__add-to-cart flex{% if enable_dynamic_checkout %} qty-input--secondary-btn{% endif %}">
@@ -287,34 +333,35 @@
             </div>
 
           {%- when 'collapsible-content' -%}
-            <details-disclosure {{ block.shopify_attributes }}>
-              <details class="disclosure disclosure--row"{% if block.settings.open %} open{% endif %}>
-                <summary>
-                  <div class="flex justify-between items-center">
-                    <h2 class="disclosure__title product-info__disclosure font-body font-bold text-body flex flex-auto items-center mb-0">
-                      {%- if block.settings.icon != 'none' -%}
-                        {% render 'icon', icon: block.settings.icon, width: 22, height: 22 %}
-                      {%- endif -%}
-                      {{- block.settings.heading | default: block.settings.page.title -}}
-                    </h2>
-                    <span class="disclosure__toggle">
-                      {%- if settings.disclosure_toggle == 'plus' -%}
-                        {% render 'icon-plus' %}
-                      {%- else -%}
-                        {% render 'icon-chevron-down' %}
-                      {%- endif -%}
-                    </span>
+            {%- if block.settings.text != blank or block.settings.page.content != blank -%}
+              <details-disclosure {{ block.shopify_attributes }}>
+                <details class="disclosure disclosure--row"{% if block.settings.open %} open{% endif %}>
+                  <summary>
+                    <div class="flex justify-between items-center">
+                      <h2 class="disclosure__title product-info__disclosure font-body font-bold text-body flex flex-auto items-center mb-0">
+                        {%- if block.settings.icon != 'none' -%}
+                          {% render 'icon', icon: block.settings.icon, width: 22, height: 22 %}
+                        {%- endif -%}
+                        {{- block.settings.heading | default: block.settings.page.title -}}
+                      </h2>
+                      <span class="disclosure__toggle">
+                        {%- if settings.disclosure_toggle == 'plus' -%}
+                          {% render 'icon-plus' %}
+                        {%- else -%}
+                          {% render 'icon-chevron-down' %}
+                        {%- endif -%}
+                      </span>
+                    </div>
+                  </summary>
+                  <div class="disclosure__panel has-motion">
+                    <div class="disclosure__content rte">
+                      {{ block.settings.text }}
+                      {{ block.settings.page.content }}
+                    </div>
                   </div>
-                </summary>
-                <div class="disclosure__panel has-motion">
-                  <div class="disclosure__content rte">
-                    {{ block.settings.text }}
-                    {{ block.settings.page.content }}
-                  </div>
-                </div>
-              </details>
-            </details-disclosure>
-
+                </details>
+              </details-disclosure>
+            {%- endif -%}
           {%- when 'product-signup' -%}
             {%- liquid
               assign show_block = true
@@ -336,7 +383,8 @@
                 {%- form 'contact', id: id, class: 'form' -%}
                   <input type="hidden" name="return_to" value="{{ product.url }}?contact_posted=true">
                   <input type="hidden" name="contact[Message]" value="Customer has completed the product signup form."/>
-                  <input type="hidden" name="contact[Product]" value="{{ product.id }}"/>
+                  <input type="hidden" name="contact[Product ID]" value="{{ product.id }}"/>
+                  <input type="hidden" name="contact[Product URL]" value="{{ shop.url }}{{ product.url }}"/>
                   <input type="hidden" name="contact[Product Title]" value="{{ product.title | escape }}"/>
 
                   <div class="form__field">
@@ -482,9 +530,38 @@
             {%- endif -%}
 
           {%- when 'description' -%}
-            <div class="product-info__block product-info__block--sm rte product-description" {{ block.shopify_attributes }}>
-              {{ product.description }}
-            </div>
+            {%- if block.settings.show_as_collapsible_content -%}
+              <details-disclosure {{ block.shopify_attributes }}>
+                <details class="disclosure disclosure--row"{% if block.settings.open %} open{% endif %}>
+                  <summary>
+                    <div class="flex justify-between items-center">
+                      <h2 class="disclosure__title product-info__disclosure font-body font-bold text-body flex flex-auto items-center mb-0">
+                        {%- if block.settings.icon != 'none' -%}
+                          {% render 'icon', icon: block.settings.icon, width: 22, height: 22 %}
+                        {%- endif -%}
+                        {{ 'products.product.description' | t }}
+                      </h2>
+                      <span class="disclosure__toggle">
+                          {%- if settings.disclosure_toggle == 'plus' -%}
+                            {% render 'icon-plus' %}
+                          {%- else -%}
+                            {% render 'icon-chevron-down' %}
+                          {%- endif -%}
+                        </span>
+                    </div>
+                  </summary>
+                  <div class="disclosure__panel has-motion">
+                    <div class="disclosure__content rte">
+                      {{ product.description }}
+                    </div>
+                  </div>
+                </details>
+              </details-disclosure>
+            {%- else -%}
+              <div class="product-info__block product-info__block--sm rte product-description" {{ block.shopify_attributes }}>
+                {{ product.description }}
+              </div>
+            {%- endif -%}
 
           {%- when 'product-labels' -%}
             {%- capture variant_labels -%}
@@ -527,7 +604,7 @@
   <link rel="stylesheet" href="{{ 'sticky-atc-panel.css' | asset_url }}" media="print" onload="this.media='all'">
   <script src="{{ 'sticky-atc-panel.js' | asset_url }}" defer="defer"></script>
 
-  <sticky-atc-panel class="sticky-atc-panel sticky-atc-panel--out fixed bottom-0 end invisible">
+  <sticky-atc-panel class="sticky-atc-panel sticky-atc-panel--out fixed bottom-0 {{ section.settings.sticky_atc_position }} invisible{% if section.settings.sticky_atc_mobile == false %} hidden md:block{% endif %}">
     <div class="card card--row card--related card--sticky-atc relative flex items-center">
       {%- if product.featured_media -%}
         <div class="card__media{% if settings.blend_product_images %} image-blend{% endif %}">
@@ -550,12 +627,19 @@
       </div>
 
       <div class="card__buttons">
+        {%- liquid
+          if has_variant_picker
+            assign anchor = "variants"
+          else
+            assign anchor = "product-info"
+          endif
+        -%}
         {%- if product.has_only_default_variant -%}
-          <a href="#variants" rel="nofollow" class="btn btn--secondary btn--sm">
+          <a href="#{{ anchor }}" rel="nofollow" class="btn btn--secondary btn--sm">
             {{- 'products.product.view_details' | t -}}
           </a>
         {%- else -%}
-          <a class="btn btn--secondary btn--sm" href="#variants" rel="nofollow">
+          <a class="btn btn--secondary btn--sm" href="#{{ anchor }}" rel="nofollow">
             {{- 'products.product.choose_options' | t -}}
           </a>
         {%- endif -%}
@@ -585,11 +669,44 @@
       "default": true
     },
     {
+      "type": "header",
+      "content": "Sticky 'Add to cart' prompt"
+    },
+    {
+      "type": "paragraph",
+      "content": "Shows a small prompt to scroll the page back to the product form."
+    },
+    {
       "type": "checkbox",
       "id": "sticky_atc_panel",
-      "label": "Show 'Add to cart' prompt on scroll",
-      "info": "Scrolls the page to the product form.",
+      "label": "Enable sticky 'Add to cart' prompt",
       "default": false
+    },
+    {
+      "type": "select",
+      "id": "sticky_atc_position",
+      "label": "Position on large screens",
+      "options": [
+        {
+          "value": "start",
+          "label": "Left"
+        },
+        {
+          "value": "sticky-atc-panel--center",
+          "label": "Center"
+        },
+        {
+          "value": "end",
+          "label": "Right"
+        }
+      ],
+      "default": "end"
+    },
+    {
+      "type": "checkbox",
+      "id": "sticky_atc_mobile",
+      "label": "Show on mobile",
+      "default": true
     },
     {
       "type": "header",
@@ -687,7 +804,7 @@
       "type": "select",
       "id": "hover_zoom",
       "label": "Zoom on hover",
-      "info": "Applies to large screens only.",
+      "info": "Only applies on large screens and when the original image is large enough.",
       "default": "large",
       "options": [
         {
@@ -916,6 +1033,13 @@
           "label": "Show pickup availability",
           "info": "Show customers where they can pick up the product. [Learn more](https://help.shopify.com/en/manual/shipping/setting-up-and-managing-your-shipping/local-methods/local-pickup)",
           "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_gift_card_recipient",
+          "default": false,
+          "label": "Show recipient information form for gift cards",
+          "info": "Allow customers to send gift cards to a recipient along with a personal message. When enabled, the dynamic checkout button will be disabled for gift cards. [Learn more](https://help.shopify.com/manual/online-store/themes/customizing-themes/add-gift-card-recipient-fields)"
         }
       ]
     },
@@ -923,6 +1047,10 @@
       "type": "collapsible-content",
       "name": "Collapsible content",
       "settings": [
+        {
+          "type": "paragraph",
+          "content": "This will be automatically hidden if there is no content to show."
+        },
         {
           "type": "text",
           "id": "heading",
@@ -983,6 +1111,10 @@
               "label": "Dryer"
             },
             {
+              "value": "email",
+              "label": "Email"
+            },
+            {
               "value": "eye",
               "label": "Eye"
             },
@@ -1025,6 +1157,10 @@
             {
               "value": "percent",
               "label": "Percent"
+            },
+            {
+              "value": "phone",
+              "label": "Phone"
             },
             {
               "value": "plane",
@@ -1080,7 +1216,8 @@
         {
           "type": "richtext",
           "id": "text",
-          "label": "Content"
+          "label": "Content",
+          "default": "<p>Add your content here</p>"
         },
         {
           "type": "page",
@@ -1117,7 +1254,7 @@
           "default": true
         },
         {
-          "type": "radio",
+          "type": "select",
           "id": "spacing",
           "label": "Spacing",
           "options": [
@@ -1231,6 +1368,12 @@
           "type": "richtext",
           "id": "text_no_stock",
           "label": "Text when out of stock"
+        },
+        {
+          "type": "richtext",
+          "id": "text_no_stock_backordered",
+          "label": "Text when backordered",
+          "default": "<p>Backordered</p>"
         }
       ]
     },
@@ -1335,6 +1478,16 @@
       ]
     },
     {
+      "type": "weight",
+      "name": "Weight",
+      "limit": 1
+    },
+    {
+      "type": "barcode",
+      "name": "Barcode (ISBN, UPC, etc)",
+      "limit": 1
+    },
+    {
       "type": "price",
       "name": "Price",
       "limit": 1,
@@ -1384,7 +1537,7 @@
           "info": "Out of stock products will not be shown."
         },
         {
-          "type": "radio",
+          "type": "select",
           "id": "layout",
           "label": "Layout",
           "options": [
@@ -1420,7 +1573,15 @@
     {
       "type": "title",
       "name": "Title",
-      "limit": 1
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_weight",
+          "label": "Show weight",
+          "default": false
+        }
+      ]
     },
     {
       "type": "variant-picker",
@@ -1431,6 +1592,7 @@
           "type": "select",
           "id": "selector_style",
           "label": "Selector style",
+          "info": "Swatches may not show as a dropdown, depending on the settings in Theme Settings > Swatches > Variant pickers.",
           "options": [
             {
               "value": "buttons",
@@ -1483,7 +1645,7 @@
     },
     {
       "type": "vendor-sku",
-      "name": "Vendor / SKU",
+      "name": "Vendor / SKU / Barcode",
       "limit": 1,
       "settings": [
         {
@@ -1497,6 +1659,13 @@
           "id": "show_sku",
           "label": "Show SKU",
           "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_barcode",
+          "label": "Show barcode",
+          "info": " ISBN, UPC, etc",
+          "default": false
         }
       ]
     },
@@ -1558,6 +1727,10 @@
               "label": "Dryer"
             },
             {
+              "value": "email",
+              "label": "Email"
+            },
+            {
               "value": "eye",
               "label": "Eye"
             },
@@ -1600,6 +1773,10 @@
             {
               "value": "percent",
               "label": "Percent"
+            },
+            {
+              "value": "phone",
+              "label": "Phone"
             },
             {
               "value": "plane",
@@ -1717,7 +1894,181 @@
     {
       "type": "description",
       "name": "Description",
-      "limit": 1
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_as_collapsible_content",
+          "label": "Show as collapsible content",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Collapsible content"
+        },
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "options": [
+            {
+              "value": "none",
+              "label": "None"
+            },
+            {
+              "value": "award",
+              "label": "Award"
+            },
+            {
+              "value": "box",
+              "label": "Box"
+            },
+            {
+              "value": "briefcase",
+              "label": "Briefcase"
+            },
+            {
+              "value": "calendar",
+              "label": "Calendar"
+            },
+            {
+              "value": "chat_bubble",
+              "label": "Chat bubble"
+            },
+            {
+              "value": "check_mark",
+              "label": "Check mark"
+            },
+            {
+              "value": "check_mark_in_circle",
+              "label": "Check mark in circle"
+            },
+            {
+              "value": "clock",
+              "label": "Clock"
+            },
+            {
+              "value": "credit_card",
+              "label": "Credit card"
+            },
+            {
+              "value": "dollar_sign",
+              "label": "Dollar sign"
+            },
+            {
+              "value": "dryer",
+              "label": "Dryer"
+            },
+            {
+              "value": "email",
+              "label": "Email"
+            },
+            {
+              "value": "eye",
+              "label": "Eye"
+            },
+            {
+              "value": "feather",
+              "label": "Feather"
+            },
+            {
+              "value": "gift",
+              "label": "Gift"
+            },
+            {
+              "value": "heart",
+              "label": "Heart"
+            },
+            {
+              "value": "iron",
+              "label": "Iron"
+            },
+            {
+              "value": "leaf",
+              "label": "Leaf"
+            },
+            {
+              "value": "leather",
+              "label": "Leather"
+            },
+            {
+              "value": "lock",
+              "label": "Lock"
+            },
+            {
+              "value": "map_pin",
+              "label": "Map pin"
+            },
+            {
+              "value": "pants",
+              "label": "Pants"
+            },
+            {
+              "value": "percent",
+              "label": "Percent"
+            },
+            {
+              "value": "phone",
+              "label": "Phone"
+            },
+            {
+              "value": "plane",
+              "label": "Plane"
+            },
+            {
+              "value": "price_tag",
+              "label": "Price tag"
+            },
+            {
+              "value": "question_mark",
+              "label": "Question mark"
+            },
+            {
+              "value": "return",
+              "label": "Return"
+            },
+            {
+              "value": "ruler",
+              "label": "Ruler"
+            },
+            {
+              "value": "scissors",
+              "label": "Scissors"
+            },
+            {
+              "value": "shirt",
+              "label": "Shirt"
+            },
+            {
+              "value": "shoe",
+              "label": "Shoe"
+            },
+            {
+              "value": "silhouette",
+              "label": "Silhouette"
+            },
+            {
+              "value": "star",
+              "label": "Star"
+            },
+            {
+              "value": "truck",
+              "label": "Truck"
+            },
+            {
+              "value": "washing",
+              "label": "Washing"
+            }
+          ],
+          "default": "none"
+        },
+        {
+          "type": "checkbox",
+          "id": "open",
+          "label": "Open by default",
+          "default": false
+        }
+      ]
     },
     {
       "type": "product-labels",

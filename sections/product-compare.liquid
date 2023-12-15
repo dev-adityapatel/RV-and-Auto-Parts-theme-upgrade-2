@@ -58,24 +58,8 @@
 
               <div class="compare-value">
                 {%- if settings.swatch_option_name and settings.card_colors_style != 'none' and settings.swatch_option_name contains option.name -%}
-                  {%- if settings.card_colors_style == 'swatches' -%}
-                    <div class="card__swatches mb-3 flex items-center relative pointer-events-none">
-                      {%- capture option_id %}{{ section.id }}-{{ product.id }}-{{ option.name | handle }}{% endcapture -%}
-                      {%- liquid
-                        assign variant_key = 'option' | append: option.position
-                        assign swatch_limit = 99
-                      -%}
-
-                      {%- for value in option.values limit: swatch_limit -%}
-                        {%- assign variant_value = product.variants | where: variant_key, value | first -%}
-                        <input type="radio" class="opt-btn visually-hidden js-option" name="{{ option_id }}-option" id="{{ option_id }}-opt-{{ forloop.index0 }}" value="{{ value | escape }}" data-variant-id="{{ variant_value.id }}"{% if variant_value.featured_media %} data-media-id="{{ variant_value.featured_media.id }}"{% endif %}}>
-                        <label class="opt-label opt-label--swatch relative" title="{{ value | replace: '"', '`' }}" data-swatch="{{ value | replace: '"', '' | downcase }}" for="{{ option_id }}-opt-{{ forloop.index0 }}"><span class="visually-hidden">{{ value }}</span></label>
-                      {%- endfor -%}
-
-                      {%- if option.values.size > swatch_limit -%}
-                        <span class="text-end text-sm">+{{ option.values.size | minus: swatch_limit }}</span>
-                      {%- endif -%}
-                    </div>
+                  {%- if settings.card_colors_style == 'swatches' or settings.card_colors_style == 'variant-images' -%}
+                    {%- render 'compare-swatches', product: product, option: option, section: section -%}
                   {%- else -%}
                     {%- if option.values.size == 1 -%}
                       <p class="mt-2">{{ 'sections.collection.colors_single' | t }}</p>
@@ -105,16 +89,24 @@
           {%- endif -%}
         </div>
 
+      {%- when 'weight' -%}
+        <div data-compare-key="compare-{{ block.type }}" class="compare-col compare-col--{{ settings.compare_column_width }} compare-col--{{ product.id }}{% if block.settings.show_line %} border-bottom{% endif %}" {{ block.shopify_attributes }}>
+          <p class="compare-label font-bold">{{- 'products.product.weight' | t -}}</p>
+          <div class="compare-value">
+            {%- render 'product-weight', product: product, empty_text: settings.compare_empty_field_text -%}
+          </div>
+        </div>
+
       {%- when 'type' -%}
         <div data-compare-key="compare-{{ block.type }}" class="compare-col compare-col--{{ settings.compare_column_width }} compare-col--{{ product.id }}{% if block.settings.show_line %} border-bottom{% endif %}" {{ block.shopify_attributes }}>
           <p class="compare-label font-bold">{{- 'products.product.type' | t -}}</p>
-          <p class="compare-value">
+          <div class="compare-value">
             {%- if product.type != blank -%}
               {{- product.type -}}
             {%- else -%}
               {{- settings.compare_empty_field_text -}}
             {%- endif -%}
-          </p>
+          </div>
         </div>
 
       {%- when 'metafield' -%}
@@ -124,7 +116,7 @@
             {%- liquid
               assign parts = key_value | split: ':'
               assign label = parts.first | strip | replace: '"', ''
-              assign metafield_key = parts.last | strip | downcase
+              assign metafield_key = parts.last | strip
               assign metafield_key_parts = metafield_key | split: "."
               assign metafield_namespace_index = metafield_key_parts | size | minus: 2
               assign metafield_key = metafield_key_parts | last
@@ -139,14 +131,14 @@
                     if forloop.last == false
                       assign comma = ", "
                     endif
-                    render 'render-metafield', metafield_type: metafield_type, metafield_value: item, comma: comma
+                    render 'render-metafield', metafield: metafield, metafield_type: metafield_type, metafield_value: item, comma: comma
                     if forloop.last == false and metafield_type == "file_reference"
                       echo "<div class='mt-2'></div>"
                     endif
                   endfor
                 else
                   if metafield.value
-                    render 'render-metafield', metafield_type: metafield.type, metafield_value: metafield.value
+                    render 'render-metafield', metafield: metafield, metafield_type: metafield.type, metafield_value: metafield.value
                   else
                     echo settings.compare_empty_field_text
                   endif
@@ -301,6 +293,17 @@
           "id": "show_line",
           "label": "Show line below",
           "default": false
+        }
+      ]
+    },
+    {
+      "type": "weight",
+      "name": "Weight",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Shows only if all variants have the same weight."
         }
       ]
     },

@@ -7,6 +7,10 @@
           "type": "vendor-sku",
           "settings": {}
         },
+        "product-labels": {
+          "type": "product-labels",
+          "settings": {}
+        },
         "title": {
           "type": "title",
           "settings": {}
@@ -52,6 +56,7 @@
       },
       "block_order": [
         "vendor-sku",
+        "product-labels",
         "title",
         "price",
         "divider-0",
